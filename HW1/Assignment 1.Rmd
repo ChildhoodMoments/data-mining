@@ -15,8 +15,6 @@ library(tidyverse)
 library(lubridate)
 ABIA <- read.csv('D:/01 UT Austin/2022 spring/DataMining/HW1/ABIA.csv')
 
-
-
 ```
 calculate the average departure delay time over 2008 and make a plot to show that
 
@@ -30,15 +28,16 @@ delay <-  AverageDayDelay %>%
   group_by(departureday) %>%
   summarise(mean_dep_delay = mean(DepDelay, na.rm = TRUE))
 
-p = ggplot(data = delay, aes(x = departureday, y = mean_dep_delay)) +
+average_departure_delay_time_over_2008 <- ggplot(data = delay, aes(x = departureday, y = mean_dep_delay)) +
   geom_line()+
   labs(title = "average departure delay time over 2008 ")+
   labs(x = 'date', y = '(minutes)')
-
-plot(p)
-
-
 ```
+
+```{r plot average departure delay time over 2008}
+plot(average_departure_delay_time_over_2008)
+```
+
 we can see the result that in most time, the delay time fluctulate between 0 and 20, and around Oct, the delay time is relatively small.
 
 

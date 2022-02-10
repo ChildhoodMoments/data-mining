@@ -4,6 +4,10 @@ question 1
 calculate the average departure delay time over 2008 and make a plot to
 show that
 
+    plot(average_departure_delay_time_over_2008)
+
+![](Assignment-1_files/figure-markdown_strict/plot%20average%20departure%20delay%20time%20over%202008-1.png)
+
 we can see the result that in most time, the delay time fluctulate
 between 0 and 20, and around Oct, the delay time is relatively small.
 
