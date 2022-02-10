@@ -1,0 +1,188 @@
+---
+title: "HW1"
+author: "Lizhao"
+date: "2022/2/9"
+output:
+  md_document
+
+---
+
+
+## question 1
+
+```{r, include=FALSE}
+library(tidyverse)
+library(lubridate)
+ABIA <- read.csv('D:/01 UT Austin/2022 spring/DataMining/HW1/ABIA.csv')
+
+
+
+```
+calculate the average departure delay time over 2008 and make a plot to show that
+
+```{r the plot of average departure delay time, include=FALSE}
+
+AverageDayDelay <- ABIA %>% 
+  select(Year, Month, DayofMonth, ArrDelay, DepDelay, ) %>%
+  mutate(departureday = make_datetime(Year, Month, DayofMonth)) 
+
+delay <-  AverageDayDelay %>%
+  group_by(departureday) %>%
+  summarise(mean_dep_delay = mean(DepDelay, na.rm = TRUE))
+
+p = ggplot(data = delay, aes(x = departureday, y = mean_dep_delay)) +
+  geom_line()+
+  labs(title = "average departure delay time over 2008 ")+
+  labs(x = 'date', y = '(minutes)')
+
+plot(p)
+
+
+```
+we can see the result that in most time, the delay time fluctulate between 0 and 20, and around Oct, the delay time is relatively small.
+
+
+
+```{r average departure delay time over a day, include=FALSE}
+AverageSpecificTimeDelay <- ABIA %>%
+  select(Year, Month, DayofMonth, CRSDepTime, ArrDelay, DepDelay) %>%
+  mutate(departureday = make_datetime(Year, Month, DayofMonth, CRSDepTime %/% 100, CRSDepTime %% 100)) %>%
+  mutate(CRSdeparttime = format(departureday, format = "%H"))
+  
+
+delayoneday = AverageSpecificTimeDelay %>%
+  group_by(CRSdeparttime) %>%
+  summarise(mean_dep_oneday = mean(DepDelay, na.rm = TRUE))
+
+
+
+delay_day <- ggplot(delayoneday) +
+  geom_line(aes(x = CRSdeparttime, y = mean_dep_oneday, group =1)) +
+  labs(title = "average departure delay time over one day(measured by hours) ")+
+  labs(x = 'time', y = '(minutes)')
+plot(delay_day)
+
+```
+we can find from 6am, the average delay time is increased in general, and due to schedule arrangement, there is no flight delarture between 00 and 06
+
+so we give a suggestion: try to catch earlier flight rather than later flight
+
+
+```{r delay affected by airline, include=FALSE }
+answer1 <- ABIA %>% 
+  select(Year, Month, DayofMonth, CRSDepTime, DepDelay, UniqueCarrier) %>%
+  mutate(departureday = make_datetime(Year, Month, DayofMonth, CRSDepTime %/% 100, CRSDepTime %% 100)) %>%
+  mutate(CRSdeparttime = format(departureday, format = "%H"))
+
+delay_airline = answer1 %>%
+  group_by(CRSdeparttime, UniqueCarrier) %>%
+  summarise(count = n(),
+            mean_dep_delay = mean(DepDelay, na.rm = TRUE))
+
+delay_airline %>%
+  filter(count > 50)%>%
+  ggplot(aes(x = CRSdeparttime, y = mean_dep_delay)) +
+  geom_line(group = 1)+
+  facet_wrap(~UniqueCarrier)
+
+```
+from that plot we can see that overall, US airline has the minimum delay time, but we lack their data in some months, maybe they doesn't arrange flightline during these months
+
+
+## question 2
+```{r question 2, include=FALSE}
+billboard <- read.csv('D:/01 UT Austin/2022 spring/DataMining/billboard.csv')
+library(tidyverse)
+library(knitr)
+
+```
+
+
+
+
+
+
+
+```{r part A, include=FALSE}
+# part_A  Make a table of the top 10 most popular songs since 1958, 
+#as measured by the total number of weeks that a song spent on the Billboard Top 100. 
+the_top_10_most_popular_songs = billboard %>%
+  group_by(performer, song)%>%
+  summarise(count = n()) %>%
+  arrange(desc(count)) %>%
+  head(10, part_A)
+
+```
+
+
+```{r the top 10 most popular songs since 1958 table }
+the_top_10_most_popular_songs
+```
+from the table we can get top 10 most popular songs since 1958
+
+partB
+```{r part B first step, include=FALSE}
+# part B Is the "musical diversity" of the Billboard Top 100 changing over time?
+#excludes the years 1958 and 2021   useful: https://www.datasciencemadesimple.com/remove-duplicate-rows-r-using-dplyr-distinct-function/#:~:text=Cool%20Text%20Symbol-,Remove%20Duplicate%20rows%20in%20R%20using%20Dplyr%20%E2%80%93%20distinct%20()%20function,variable%20or%20with%20multiple%20variable.
+
+part_b =billboard %>%
+  filter(year != 1958 & year != 2021) 
+
+```
+we first excludes the years 1958 and 2021
+then we can counts the number of times that a given song appears on the Top 100 in a given year
+
+```{r second step, include=FALSE}
+part_b_1 <- part_b %>%
+  group_by(year,song)%>%
+  summarise(count = n())
+number_of_times_that_a_given_song <- part_b_1 %>% distinct(song, .keep_all = TRUE)
+
+```
+
+```{r result of second step}
+number_of_times_that_a_given_song
+```
+
+then we count the number of unique songs that appeared on the Top 100 in each year, irrespective of how many times it had appeared.
+
+```{r partB last step}
+part_b_3 <- number_of_times_that_a_given_song %>%
+  group_by(year) %>%
+  summarise(count = length(unique(song)))
+
+# make a line graph to show muscial diversity over the years
+unique_music <- ggplot(data = part_b_3)+
+  geom_line(aes(x = year, y = count, group = 1))
+plot(unique_music)
+```
+
+partC "ten-week hit" as a single song that appeared on the Billboard Top 100 for at least ten weeks. 
+we first find performer and music satisfy ten-week hit, then filter people who have less than 30 songs
+```{r part c satisfied music, include=FALSE}
+part_c_1 <- billboard %>% 
+  group_by(song, performer)%>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  filter(count >= 10)
+
+```
+
+```{r filter unqualified musician, include=FALSE}
+part_c_2 <- part_c_1 %>%
+  group_by(performer) %>%
+  summarise(count = n())%>%
+  filter(count >= 30) %>%
+  arrange(desc(count))
+```
+
+we can get the plot like: 
+```{r ten-week hit, include=FALSE}
+ten_week_hit_musicians <- ggplot(data = part_c_2, )+
+  geom_col(aes(reorder(performer, count), count))+
+  coord_flip()
+  
+plot(ten_week_hit_musicians)
+```
+
+
