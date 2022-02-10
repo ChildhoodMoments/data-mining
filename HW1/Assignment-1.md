@@ -11,12 +11,20 @@ show that
 we can see the result that in most time, the delay time fluctulate
 between 0 and 20, and around Oct, the delay time is relatively small.
 
+    plot(delay_day)
+
+![](Assignment-1_files/figure-markdown_strict/delay%20day-1.png)
+
 we can find from 6am, the average delay time is increased in general,
 and due to schedule arrangement, there is no flight delarture between 00
 and 06
 
 so we give a suggestion: try to catch earlier flight rather than later
 flight
+
+    plot(delay_affected_airline)
+
+![](Assignment-1_files/figure-markdown_strict/delay%20time%20affected%20by%20airline-1.png)
 
 from that plot we can see that overall, US airline has the minimum delay
 time, but we lack their data in some months, maybe they doesn’t arrange
@@ -70,21 +78,16 @@ of times that a given song appears on the Top 100 in a given year
 then we count the number of unique songs that appeared on the Top 100 in
 each year, irrespective of how many times it had appeared.
 
-    part_b_3 <- number_of_times_that_a_given_song %>%
-      group_by(year) %>%
-      summarise(count = length(unique(song)))
-
-    ## `summarise()` ungrouping output (override with `.groups` argument)
-
-    # make a line graph to show muscial diversity over the years
-    unique_music <- ggplot(data = part_b_3)+
-      geom_line(aes(x = year, y = count, group = 1))
     plot(unique_music)
 
-![](Assignment-1_files/figure-markdown_strict/partB%20last%20step-1.png)
+![](Assignment-1_files/figure-markdown_strict/show%20musical%20diversity%20over%20the%20years-1.png)
 
 partC “ten-week hit” as a single song that appeared on the Billboard Top
 100 for at least ten weeks. we first find performer and music satisfy
 ten-week hit, then filter people who have less than 30 songs
 
 we can get the plot like:
+
+    plot(ten_week_hit_musicians)
+
+![](Assignment-1_files/figure-markdown_strict/ten_week_hit_musicians%20list-1.png)

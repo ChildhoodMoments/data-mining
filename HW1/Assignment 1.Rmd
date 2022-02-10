@@ -59,9 +59,14 @@ delay_day <- ggplot(delayoneday) +
   geom_line(aes(x = CRSdeparttime, y = mean_dep_oneday, group =1)) +
   labs(title = "average departure delay time over one day(measured by hours) ")+
   labs(x = 'time', y = '(minutes)')
-plot(delay_day)
+
 
 ```
+
+```{r delay day}
+plot(delay_day)
+```
+
 we can find from 6am, the average delay time is increased in general, and due to schedule arrangement, there is no flight delarture between 00 and 06
 
 so we give a suggestion: try to catch earlier flight rather than later flight
@@ -78,13 +83,19 @@ delay_airline = answer1 %>%
   summarise(count = n(),
             mean_dep_delay = mean(DepDelay, na.rm = TRUE))
 
-delay_airline %>%
+delay_affected_airline <-  delay_airline %>%
   filter(count > 50)%>%
   ggplot(aes(x = CRSdeparttime, y = mean_dep_delay)) +
   geom_line(group = 1)+
   facet_wrap(~UniqueCarrier)
 
 ```
+
+```{r delay time affected by airline}
+plot(delay_affected_airline)
+
+```
+
 from that plot we can see that overall, US airline has the minimum delay time, but we lack their data in some months, maybe they doesn't arrange flightline during these months
 
 
@@ -145,7 +156,7 @@ number_of_times_that_a_given_song
 
 then we count the number of unique songs that appeared on the Top 100 in each year, irrespective of how many times it had appeared.
 
-```{r partB last step}
+```{r partB last step, include=FALSE}
 part_b_3 <- number_of_times_that_a_given_song %>%
   group_by(year) %>%
   summarise(count = length(unique(song)))
@@ -153,8 +164,13 @@ part_b_3 <- number_of_times_that_a_given_song %>%
 # make a line graph to show muscial diversity over the years
 unique_music <- ggplot(data = part_b_3)+
   geom_line(aes(x = year, y = count, group = 1))
+
+```
+
+```{r show musical diversity over the years}
 plot(unique_music)
 ```
+
 
 partC "ten-week hit" as a single song that appeared on the Billboard Top 100 for at least ten weeks. 
 we first find performer and music satisfy ten-week hit, then filter people who have less than 30 songs
@@ -181,7 +197,9 @@ ten_week_hit_musicians <- ggplot(data = part_c_2, )+
   geom_col(aes(reorder(performer, count), count))+
   coord_flip()
   
-plot(ten_week_hit_musicians)
 ```
 
+```{r ten_week_hit_musicians list}
+plot(ten_week_hit_musicians)
+```
 
