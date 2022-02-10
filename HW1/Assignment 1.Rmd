@@ -203,3 +203,142 @@ ten_week_hit_musicians <- ggplot(data = part_c_2, )+
 plot(ten_week_hit_musicians)
 ```
 
+# question4 
+```{r, echo =FALSE}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(rsample)  # for creating train/test splits
+library(caret)
+library(modelr)
+library(parallel)
+library(foreach)
+```
+
+##1 Filter 350 & 65 AMG
+```{r, echo =FALSE}
+def_350 = sclass%>%
+  filter(trim == "350")
+
+def_65 = sclass%>%
+  filter(trim == "65 AMG")
+```
+
+##2 spilt to test& training set
+```{r, echo =FALSE}
+def_350_spilt = initial_split(def_350 ,prop=0.8)
+def_350_train = training(def_350_spilt)
+def_350_test = testing(def_350_spilt)
+
+def_65_spilt = initial_split(def_65 ,prop=0.8)
+def_65_train = training(def_65_spilt)
+def_65_test = testing(def_65_spilt)
+```
+
+##3 run k nearest neighbors  RMSEs
+```{r, echo =FALSE}
+k_folds = 5
+k_grid = rep(1:100)
+
+knn100 = knnreg(price ~ mileage, data=def_350_train, k=100)
+rmse(knn100, def_350_test)
+
+knn100 = knnreg(price ~ mileage, data=def_65_train, k=100)
+rmse(knn100, def_65_test)
+
+# Pipeline 1:
+# create specific fold IDs for each row
+# the default behavior of sample actually gives a permutation
+def_350 = def_350 %>%
+  mutate(fold_id = rep(1:k_folds, length=nrow(def_350)) %>% sample)
+
+head(def_350)
+
+def_65 = def_65 %>%
+  mutate(fold_id = rep(1:k_folds, length=nrow(def_65)) %>% sample)
+
+head(def_65)
+
+def_350_folds = crossv_kfold(def_350, k=k_folds)
+def_65_folds = crossv_kfold(def_65, k=k_folds)
+
+cv_grid_350 = foreach(k = k_grid, .combine='rbind') %dopar% {
+  models = map(def_350_folds$train, ~ knnreg(price ~ mileage, k=k, data = ., use.all=FALSE))
+  errs = map2_dbl(models, def_350_folds$test, modelr::rmse)
+  c(k=k, err = mean(errs), std_err = sd(errs)/sqrt(K_folds))
+} %>% as.data.frame
+
+cv_grid_65 = foreach(k = k_grid, .combine='rbind') %dopar% {
+  models = map(def_65_folds$train, ~ knnreg(price ~ mileage, k=k, data = ., use.all=FALSE))
+  errs = map2_dbl(models, def_65_folds$test, modelr::rmse)
+  c(k=k, err = mean(errs), std_err = sd(errs)/sqrt(K_folds))
+} %>% as.data.frame
+
+head(cv_grid_350)
+head(cv_grid_65)
+
+```
+
+##4 每個trim都畫出RMSE和K的關係，可看出optimal k（line or point）
+```{r, echo =FALSE}
+ggplot(cv_grid_350) + 
+  geom_point(aes(x= k, y= err)) + 
+  geom_errorbar(aes(x=k, ymin = err-std_err, ymax = err+std_err))
+
+ggplot(cv_grid_65) + 
+  geom_point(aes(x= k, y= err)) + 
+  geom_errorbar(aes(x=k, ymin = err-std_err, ymax = err+std_err))
+```
+The optimal k for 350 is 15, and the optimal k for 65 AMG is 22
+
+##5 該k值對應的model(for each trim)
+```{r, echo =FALSE}
+k_min_rmse_350 = cv_grid_350 %>%
+  slice_min(err) %>%
+  pull(k)
+
+k_min_rmse_65 = cv_grid_65 %>%
+  slice_min(err) %>%
+  pull(k)
+```
+
+##6哪個trim有較大的optimal k? why?
+```{r, echo =FALSE}
+# 350 
+def_350_split = initial_split(def_350, prop=0.8)
+def_350_train = training(def_350_split)
+def_350_test  = testing(def_350_split)
+
+knn100 = knnreg(price ~ mileage, data=def_350_train, k=100)
+rmse(knn100, def_350_test)
+
+def_350_test = def_350_test %>%
+  mutate(price_350_pred = predict(knn100, def_350_test))
+
+p_test_350 = ggplot(data = def_350_test) + 
+  geom_point(mapping = aes(x = mileage, y = price), alpha=0.2) +
+  geom_line(aes(x = mileage , y = price_350_pred), color='red', size=1.5)+ ggtitle("350")
+
+p_test_350
+
+#65 AMG
+def_65_split = initial_split(def_65, prop=0.8)
+def_65_train = training(def_65_split)
+def_65_test  = testing(def_65_split)
+
+knn100 = knnreg(price ~ mileage, data=def_65_train, k=100)
+rmse(knn100, def_65_test)
+
+def_65_test = def_65_test %>%
+  mutate(price_65_pred = predict(knn100, def_65_test))
+
+p_test_65 = ggplot(data = def_65_test) + 
+  geom_point(mapping = aes(x = mileage, y = price), alpha=0.2) +
+  geom_line(aes(x = mileage , y = price_65_pred), color='red', size=1.5)+ggtitle(" 65 AMG")
+
+p_test_65
+```
+
+65 AMG has a bigger optimal value of k.
+
+Because 65 AMG trim has more data than 350 trim level.
