@@ -113,20 +113,29 @@ so we get 95 percentile height of each event and overall separately:
     ## 95% 
     ## 183
 
-    ## # A tibble: 27 x 2
-    ##    event                                ninety_fifth_percentile_height
-    ##    <chr>                                                         <dbl>
-    ##  1 Athletics Women's Shot Put                                     192.
-    ##  2 Athletics Women's Heptathlon                                   189.
-    ##  3 Athletics Women's Discus Throw                                 188.
-    ##  4 Athletics Women's High Jump                                    188 
-    ##  5 Athletics Women's Triple Jump                                  187.
-    ##  6 Athletics Women's Javelin Throw                                186.
-    ##  7 Athletics Women's Hammer Throw                                 184.
-    ##  8 Athletics Women's Pole Vault                                   183 
-    ##  9 Athletics Women's 400 metres Hurdles                           181.
-    ## 10 Athletics Women's Long Jump                                    181.
-    ## # ... with 17 more rows
+    ## # A tibble: 20 x 2
+    ##    event                                       ninety_fifth_percentile_height
+    ##    <chr>                                                                <dbl>
+    ##  1 Athletics Women's Shot Put                                            192.
+    ##  2 Athletics Women's Heptathlon                                          189.
+    ##  3 Athletics Women's Discus Throw                                        188.
+    ##  4 Athletics Women's High Jump                                           188 
+    ##  5 Athletics Women's Triple Jump                                         187.
+    ##  6 Athletics Women's Javelin Throw                                       186.
+    ##  7 Athletics Women's Hammer Throw                                        184.
+    ##  8 Athletics Women's Pole Vault                                          183 
+    ##  9 Athletics Women's 400 metres Hurdles                                  181.
+    ## 10 Athletics Women's Long Jump                                           181.
+    ## 11 Athletics Women's 200 metres                                          180 
+    ## 12 Athletics Women's 400 metres                                          180 
+    ## 13 Athletics Women's 100 metres                                          180.
+    ## 14 Athletics Women's Pentathlon                                          179 
+    ## 15 Athletics Women's 4 x 400 metres Relay                                178 
+    ## 16 Athletics Women's 3,000 metres Steeplechase                           177.
+    ## 17 Athletics Women's 100 metres Hurdles                                  176 
+    ## 18 Athletics Women's 4 x 100 metres Relay                                176 
+    ## 19 Athletics Women's 800 metres                                          176.
+    ## 20 Athletics Women's 80 metres Hurdles                                   175.
 
 The 95th percentile of heights for female competitors across all
 Athletics events is 183
@@ -144,6 +153,24 @@ standard deviation
 
 partc average age of Olympic swimmers changed over time
 
+according to data frame, we can also see this trend
+
+    ## # A tibble: 46 x 3
+    ## # Groups:   year [28]
+    ##     year sex   age_avg
+    ##    <int> <chr>   <dbl>
+    ##  1  1900 M        18  
+    ##  2  1904 M        20.1
+    ##  3  1906 M        22  
+    ##  4  1908 M        23.5
+    ##  5  1912 M        27  
+    ##  6  1920 M        26  
+    ##  7  1924 F        18  
+    ##  8  1924 M        32  
+    ##  9  1928 M        23.5
+    ## 10  1932 M        19  
+    ## # ... with 36 more rows
+
 ![](Assignment-1_files/figure-markdown_strict/show%20average%20swimmers%20age%20change-1.png)
 
 The average age of Olympic swimmers increased over time. The trend look
@@ -158,81 +185,62 @@ question 4
 
 \#\#\#3 run k nearest neighbors RMSEs
 
-    ## [1] 10106.16
-
-    ## [1] 41467.12
-
-    ##    id trim subTrim condition isOneOwner mileage year  color displacement   fuel
-    ## 1 282  350    unsp       CPO          f   21929 2012  Black        3.0 L Diesel
-    ## 2 284  350    unsp       CPO          f   17770 2012 Silver        3.0 L Diesel
-    ## 3 285  350    unsp      Used          f   29108 2012  Black        3.0 L Diesel
-    ## 4 288  350    unsp       CPO          f   35004 2013  White        3.0 L Diesel
-    ## 5 289  350    unsp      Used          t   66689 2012  Black        3.0 L Diesel
-    ## 6 290  350    unsp       CPO          f   19567 2012  Black        3.0 L Diesel
-    ##   state region   soundSystem wheelType wheelSize featureCount price fold_id
-    ## 1    MA    New          unsp      unsp      unsp           82 55994       5
-    ## 2    IL    ENC       Premium     Alloy      unsp           72 60900       2
-    ## 3    VA    SoA          unsp      unsp      unsp            5 54995       1
-    ## 4    NH    New Harman Kardon      unsp      unsp           83 59988       1
-    ## 5    NJ    Mid Harman Kardon     Alloy      unsp           79 37995       5
-    ## 6    LA    WSC       Premium     Alloy      unsp           76 59977       3
-
-    ##     id   trim subTrim condition isOneOwner mileage year  color displacement
-    ## 1 1060 65 AMG    unsp       New          f     106 2015  Black        6.0 L
-    ## 2 1062 65 AMG    unsp       New          f      11 2015  Black        6.0 L
-    ## 3 1387 65 AMG    unsp      Used          f   74461 2006 Silver        6.0 L
-    ## 4 2068 65 AMG    unsp      Used          f   73415 2007   Gray        6.0 L
-    ## 5 2141 65 AMG    unsp       CPO          f   17335 2011  Black        6.0 L
-    ## 6 2310 65 AMG    unsp       New          f       7 2015  White        6.0 L
-    ##       fuel state region soundSystem wheelType wheelSize featureCount  price
-    ## 1 Gasoline    NJ    Mid     Premium     Alloy      unsp           73 235375
-    ## 2 Gasoline    CA    Pac     Premium      unsp        20           83 226465
-    ## 3 Gasoline    IL    ENC        unsp     Alloy      unsp           50  24995
-    ## 4 Gasoline    CA    Pac     Premium      unsp      unsp           17  54981
-    ## 5 Gasoline    OH    ENC        unsp      unsp      unsp           92 102500
-    ## 6 Gasoline    CA    Pac        unsp      unsp      unsp            1 230860
-    ##   fold_id
-    ## 1       4
-    ## 2       3
-    ## 3       4
-    ## 4       2
-    ## 5       1
-    ## 6       4
-
     ## Warning: executing %dopar% sequentially: no parallel backend registered
 
     ##          k      err  std_err
-    ## result.1 1 13428.55 396.8497
-    ## result.2 2 11762.81 349.7512
-    ## result.3 3 11266.65 491.8329
-    ## result.4 4 10878.47 483.8033
-    ## result.5 5 10505.94 458.2787
-    ## result.6 6 10281.55 379.8596
+    ## result.1 1 13695.15 976.3383
+    ## result.2 2 12003.51 600.0563
+    ## result.3 3 11125.18 747.5780
+    ## result.4 4 10874.85 666.0187
+    ## result.5 5 10761.74 758.4485
+    ## result.6 6 10544.60 723.7011
 
-    ##          k      err  std_err
-    ## result.1 1 31703.17 2303.893
-    ## result.2 2 25366.52 1647.230
-    ## result.3 3 22964.93 1960.314
-    ## result.4 4 21794.20 2133.844
-    ## result.5 5 21275.44 2351.496
-    ## result.6 6 20868.46 2252.027
+    ##          k      err   std_err
+    ## result.1 1 27807.78 1541.3342
+    ## result.2 2 23945.93  944.0933
+    ## result.3 3 22235.61 1347.8117
+    ## result.4 4 22000.99 1507.6568
+    ## result.5 5 21958.50 1545.5383
+    ## result.6 6 21585.40 1747.2266
 
 \#\#\#4 the relationship for RMSE and k，can find optimal k（line or
 point）
-![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-6-1.png)![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-6-2.png)
-The optimal k for 350 is 15, and the optimal k for 65 AMG is 22
+![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-8-1.png)![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-8-2.png)
+Then we try to find the optimal k for each trim
 
-\#\#\#5 model for each k (for each trim) \#\#6 Which trim have bigger
-optimal k? why?
+so the optimal k for trim 350 and its RMSE is:
 
-    ## [1] 11843.12
+    ## [1] 17
 
-![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-7-1.png)
+    ## [1] 9734.978
 
-    ## [1] 39823.98
+so the optimal k for trim 65\_AUG and its RMSE is:
 
-![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-7-2.png)
+    ## [1] 7
 
-65 AMG has a bigger optimal value of k.
+    ## [1] 20714.21
 
-Because 65 AMG trim has more data than 350 trim level.
+then we fit the model to the training set and make predictions on your
+test set
+
+so the out-of-sample root mean-squared error (RMSE) for trim 350 is and
+its fitting graph is:
+
+    ## [1] 9045.677
+
+![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-13-1.png)
+
+so the out-of-sample root mean-squared error (RMSE) for trim 350 is and
+its fitting graph is:
+
+    ## [1] 20179.33
+
+![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-16-1.png)
+
+350 trim has a bigger optimal value of k.
+
+Because 65 AMG trim has smaller data size compare to 350 trim level.
+fewer observations.On the other hand, smaller estimation variance
+generally requires a less complex model, so we need set k smaller to
+contain various noises data.And when sample size is smaller, our setting
+k progress would be affected.

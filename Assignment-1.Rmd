@@ -282,7 +282,25 @@ partc average age of Olympic swimmers changed over time
   ggplot(aes(x=year,y=age_avg,color=sex))+
   geom_line()+
   geom_point(size = 4)
+
+plot(average_swimmers_age_plot_based_on_gender)
 ```
+
+
+according to data frame, we can also see this trend
+```{r, include=FALSE}
+average_dataframe <- olympics_top20 %>%
+  filter(sport=="Swimming") %>%
+  group_by(year,sex) %>%
+  summarize(age_avg=mean(age))%>%
+  arrange(year, )
+```
+
+```{r}
+average_dataframe
+```
+
+
 
 ```{r show average swimmers age change}
 plot(average_swimmers_age_plot_based_on_gender)
@@ -320,27 +338,35 @@ def_65_test = testing(def_65_spilt)
 
 ###3 run k nearest neighbors  RMSEs
 ```{r, echo =FALSE}
+def_350 = sclass%>%
+  filter(trim == "350")
+
+def_65 = sclass%>%
+  filter(trim == "65 AMG")
+
+def_350_spilt = initial_split(def_350 ,prop=0.8)
+def_350_train = training(def_350_spilt)
+def_350_test = testing(def_350_spilt)
+
+def_65_spilt = initial_split(def_65 ,prop=0.8)
+def_65_train = training(def_65_spilt)
+def_65_test = testing(def_65_spilt)
+
+
+
+
 k_folds = 5
 k_grid = rep(1:100)
 
-knn100 = knnreg(price ~ mileage, data=def_350_train, k=100)
-rmse(knn100, def_350_test)
 
-knn100 = knnreg(price ~ mileage, data=def_65_train, k=100)
-rmse(knn100, def_65_test)
 
-# Pipeline 1:
-# create specific fold IDs for each row
-# the default behavior of sample actually gives a permutation
 def_350 = def_350 %>%
   mutate(fold_id = rep(1:k_folds, length=nrow(def_350)) %>% sample)
 
-head(def_350)
 
 def_65 = def_65 %>%
   mutate(fold_id = rep(1:k_folds, length=nrow(def_65)) %>% sample)
 
-head(def_65)
 
 def_350_folds = crossv_kfold(def_350, k=k_folds)
 def_65_folds = crossv_kfold(def_65, k=k_folds)
@@ -360,67 +386,111 @@ cv_grid_65 = foreach(k = k_grid, .combine='rbind') %dopar% {
 head(cv_grid_350)
 head(cv_grid_65)
 
+
 ```
 
 ###4 the relationship for RMSE and k，can find optimal k（line or point）
 ```{r, echo =FALSE}
 ggplot(cv_grid_350) + 
-  geom_point(aes(x= k, y= err)) + 
-  geom_errorbar(aes(x=k, ymin = err-std_err, ymax = err+std_err))
+  geom_point(aes(x= k, y= err),size = 1) + 
+  geom_errorbar(aes(x=k, ymin = err-std_err, ymax = err+std_err))+
+  geom_line(aes(x= k, y= err),size = 0.8)
 
 ggplot(cv_grid_65) + 
-  geom_point(aes(x= k, y= err)) + 
-  geom_errorbar(aes(x=k, ymin = err-std_err, ymax = err+std_err))
+  geom_point(aes(x= k, y= err), size =1) + 
+  geom_errorbar(aes(x=k, ymin = err-std_err, ymax = err+std_err))+
+  geom_line(aes(x= k, y= err),size = 0.8)
 ```
-The optimal k for 350 is 15, and the optimal k for 65 AMG is 22
+Then we try to find the optimal k for each trim
 
-###5 model for each k (for each trim) ##6 Which trim have bigger optimal k? why?
-```{r, echo =FALSE}
+```{r optimal k, include=FALSE}
 k_min_rmse_350 = cv_grid_350 %>%
   slice_min(err) %>%
   pull(k)
 
+knn350 = knnreg(price ~ mileage, data=def_350_train, k=k_min_rmse_350)
+RMSE_k_min_rmse_350 = rmse(knn350, def_350_train)
+
+
 k_min_rmse_65 = cv_grid_65 %>%
   slice_min(err) %>%
   pull(k)
-# 350 
-def_350_split = initial_split(def_350, prop=0.8)
-def_350_train = training(def_350_split)
-def_350_test  = testing(def_350_split)
+knn65 = knnreg(price ~ mileage, data=def_65_train, k=k_min_rmse_350)
+RMSE_k_min_rmse_65 = rmse(knn65, def_65_train)
 
-knn100 = knnreg(price ~ mileage, data=def_350_train, k=100)
-rmse(knn100, def_350_test)
+```
+
+
+so the optimal k for trim 350  and its RMSE is:
+```{r}
+k_min_rmse_350
+RMSE_k_min_rmse_350
+```
+so the optimal k for trim 65_AUG and its RMSE is:
+```{r}
+k_min_rmse_65
+RMSE_k_min_rmse_65
+```
+
+
+then we fit the model to the training set and make predictions on your test set
+```{r, echo =FALSE}
+
+
+# 350 
+
+knn35_predict = knnreg(price ~ mileage, data=def_350_train, k=k_min_rmse_350)
+RMSE_350_testset = rmse(knn35_predict, def_350_test)
 
 def_350_test = def_350_test %>%
-  mutate(price_350_pred = predict(knn100, def_350_test))
+  mutate(price_350_pred = predict(knn35_predict, def_350_test))
 
 p_test_350 = ggplot(data = def_350_test) + 
   geom_point(mapping = aes(x = mileage, y = price), alpha=0.2) +
-  geom_line(aes(x = mileage , y = price_350_pred), color='red', size=1.5)+ ggtitle("350")
+  geom_line(aes(x = mileage , y = price_350_pred), color='blue', size=1.5)+ ggtitle("350 test result")
 
+
+
+```
+so  the out-of-sample root mean-squared error (RMSE)  for trim 350 is and its fitting graph is:
+```{r}
+RMSE_350_testset
+```
+
+```{r}
 p_test_350
+```
 
+
+```{r}
 #65 AMG
-def_65_split = initial_split(def_65, prop=0.8)
-def_65_train = training(def_65_split)
-def_65_test  = testing(def_65_split)
 
-knn100 = knnreg(price ~ mileage, data=def_65_train, k=100)
-rmse(knn100, def_65_test)
+knn65_predict = knnreg(price ~ mileage, data=def_65_train, k=k_min_rmse_65)
+RMSE_65_testset = rmse(knn65_predict, def_65_test)
 
 def_65_test = def_65_test %>%
-  mutate(price_65_pred = predict(knn100, def_65_test))
+  mutate(price_65_pred = predict(knn65_predict, def_65_test))
 
 p_test_65 = ggplot(data = def_65_test) + 
   geom_point(mapping = aes(x = mileage, y = price), alpha=0.2) +
-  geom_line(aes(x = mileage , y = price_65_pred), color='red', size=1.5)+ggtitle(" 65 AMG")
+  geom_line(aes(x = mileage , y = price_65_pred), color='red', size=1.5)+ggtitle(" 65 AMG, k=9")
 
+
+
+```
+so  the out-of-sample root mean-squared error (RMSE)  for trim 350 is and its fitting graph is:
+
+```{r}
+RMSE_65_testset
+```
+
+```{r}
 p_test_65
 ```
 
-65 AMG has a bigger optimal value of k.
+350 trim has a bigger optimal value of k.
 
-Because 65 AMG trim has more data than 350 trim level.
+Because 65 AMG trim has smaller data size compare to 350 trim level. fewer observations.On the other hand, smaller estimation variance generally requires a less complex model, so we need set k smaller to contain various noises data.And when sample size is smaller, our setting k progress would be affected. 
 
 
 
