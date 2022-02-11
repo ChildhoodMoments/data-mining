@@ -1,3 +1,5 @@
+Author: Jyun\_Yu\_Cheng Li\_Zhao\_Du Yi\_Ji\_Gao
+
 ## question 1
 
 calculate the average departure delay time over 2008 and make a plot to
@@ -110,9 +112,9 @@ different for male swimmers relative to female swimmers
 
 ###3 run k nearest neighbors RMSEs
 
-    ## [1] 11094.32
+    ## [1] 10546.73
 
-    ## [1] 28433.28
+    ## [1] 34219.45
 
     ##    id trim subTrim condition isOneOwner mileage year  color displacement   fuel
     ## 1 282  350    unsp       CPO          f   21929 2012  Black        3.0 L Diesel
@@ -126,8 +128,8 @@ different for male swimmers relative to female swimmers
     ## 2    IL    ENC       Premium     Alloy      unsp           72 60900       1
     ## 3    VA    SoA          unsp      unsp      unsp            5 54995       3
     ## 4    NH    New Harman Kardon      unsp      unsp           83 59988       5
-    ## 5    NJ    Mid Harman Kardon     Alloy      unsp           79 37995       3
-    ## 6    LA    WSC       Premium     Alloy      unsp           76 59977       5
+    ## 5    NJ    Mid Harman Kardon     Alloy      unsp           79 37995       4
+    ## 6    LA    WSC       Premium     Alloy      unsp           76 59977       1
 
     ##     id   trim subTrim condition isOneOwner mileage year  color displacement
     ## 1 1060 65 AMG    unsp       New          f     106 2015  Black        6.0 L
@@ -144,30 +146,30 @@ different for male swimmers relative to female swimmers
     ## 5 Gasoline    OH    ENC        unsp      unsp      unsp           92 102500
     ## 6 Gasoline    CA    Pac        unsp      unsp      unsp            1 230860
     ##   fold_id
-    ## 1       1
+    ## 1       4
     ## 2       1
-    ## 3       2
-    ## 4       5
-    ## 5       3
+    ## 3       1
+    ## 4       4
+    ## 5       5
     ## 6       1
 
     ## Warning: executing %dopar% sequentially: no parallel backend registered
 
     ##          k      err  std_err
-    ## result.1 1 13828.47 637.4542
-    ## result.2 2 12255.26 695.4219
-    ## result.3 3 11212.70 678.1001
-    ## result.4 4 10871.14 698.8627
-    ## result.5 5 10513.48 717.5712
-    ## result.6 6 10302.57 683.0619
+    ## result.1 1 13497.13 597.9532
+    ## result.2 2 12049.20 431.6555
+    ## result.3 3 11695.67 513.4311
+    ## result.4 4 11101.69 591.8560
+    ## result.5 5 10734.08 542.8315
+    ## result.6 6 10708.09 509.7032
 
-    ##          k      err  std_err
-    ## result.1 1 28571.54 2063.611
-    ## result.2 2 22984.74 1999.270
-    ## result.3 3 22982.31 1797.140
-    ## result.4 4 22424.96 1873.033
-    ## result.5 5 21831.22 2071.621
-    ## result.6 6 21469.71 2048.392
+    ##          k      err   std_err
+    ## result.1 1 30921.84  960.6531
+    ## result.2 2 25384.47 1639.9462
+    ## result.3 3 24744.13 1652.0545
+    ## result.4 4 23566.93 2000.8048
+    ## result.5 5 22667.87 2008.5383
+    ## result.6 6 22696.68 2237.6985
 
 ###4 the relationship for RMSE and k，can find optimal k（line or
 point）
@@ -177,11 +179,11 @@ The optimal k for 350 is 15, and the optimal k for 65 AMG is 22
 ###5 model for each k (for each trim) ##6 Which trim have bigger optimal
 k? why?
 
-    ## [1] 12502.48
+    ## [1] 9881.405
 
 ![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-10-1.png)
 
-    ## [1] 40317.32
+    ## [1] 30344.76
 
 ![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-10-2.png)
 

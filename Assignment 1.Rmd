@@ -6,7 +6,10 @@ output:
   md_document
 
 ---
-
+Author: 
+Jyun_Yu_Cheng 
+Li_Zhao_Du
+Yi_Ji_Gao
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 ```
