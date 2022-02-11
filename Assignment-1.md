@@ -101,7 +101,9 @@ satisfy ten-week hit, then filter people who have less than 30 songs
 we can get the plot like:
 
 ![](Assignment-1_files/figure-markdown_strict/ten_week_hit_musicians%20list-1.png)
-\#\# question 3
+
+question 3
+----------
 
 partA the 95th percentile of heights for female competitors across all
 Athletics events
@@ -156,9 +158,9 @@ question 4
 
 \#\#\#3 run k nearest neighbors RMSEs
 
-    ## [1] 8766.9
+    ## [1] 10106.16
 
-    ## [1] 37716.33
+    ## [1] 41467.12
 
     ##    id trim subTrim condition isOneOwner mileage year  color displacement   fuel
     ## 1 282  350    unsp       CPO          f   21929 2012  Black        3.0 L Diesel
@@ -168,11 +170,11 @@ question 4
     ## 5 289  350    unsp      Used          t   66689 2012  Black        3.0 L Diesel
     ## 6 290  350    unsp       CPO          f   19567 2012  Black        3.0 L Diesel
     ##   state region   soundSystem wheelType wheelSize featureCount price fold_id
-    ## 1    MA    New          unsp      unsp      unsp           82 55994       3
-    ## 2    IL    ENC       Premium     Alloy      unsp           72 60900       5
-    ## 3    VA    SoA          unsp      unsp      unsp            5 54995       2
-    ## 4    NH    New Harman Kardon      unsp      unsp           83 59988       4
-    ## 5    NJ    Mid Harman Kardon     Alloy      unsp           79 37995       1
+    ## 1    MA    New          unsp      unsp      unsp           82 55994       5
+    ## 2    IL    ENC       Premium     Alloy      unsp           72 60900       2
+    ## 3    VA    SoA          unsp      unsp      unsp            5 54995       1
+    ## 4    NH    New Harman Kardon      unsp      unsp           83 59988       1
+    ## 5    NJ    Mid Harman Kardon     Alloy      unsp           79 37995       5
     ## 6    LA    WSC       Premium     Alloy      unsp           76 59977       3
 
     ##     id   trim subTrim condition isOneOwner mileage year  color displacement
@@ -190,30 +192,30 @@ question 4
     ## 5 Gasoline    OH    ENC        unsp      unsp      unsp           92 102500
     ## 6 Gasoline    CA    Pac        unsp      unsp      unsp            1 230860
     ##   fold_id
-    ## 1       3
-    ## 2       2
-    ## 3       3
-    ## 4       4
-    ## 5       3
+    ## 1       4
+    ## 2       3
+    ## 3       4
+    ## 4       2
+    ## 5       1
     ## 6       4
 
     ## Warning: executing %dopar% sequentially: no parallel backend registered
 
     ##          k      err  std_err
-    ## result.1 1 13768.32 281.5668
-    ## result.2 2 12010.59 558.2679
-    ## result.3 3 11323.97 576.4579
-    ## result.4 4 11201.95 556.7702
-    ## result.5 5 10828.79 578.0660
-    ## result.6 6 10611.76 588.8118
+    ## result.1 1 13428.55 396.8497
+    ## result.2 2 11762.81 349.7512
+    ## result.3 3 11266.65 491.8329
+    ## result.4 4 10878.47 483.8033
+    ## result.5 5 10505.94 458.2787
+    ## result.6 6 10281.55 379.8596
 
     ##          k      err  std_err
-    ## result.1 1 29675.74 2032.202
-    ## result.2 2 25335.56 1816.294
-    ## result.3 3 23309.32 1422.852
-    ## result.4 4 22402.35 1466.851
-    ## result.5 5 22732.51 1428.089
-    ## result.6 6 21886.99 1404.297
+    ## result.1 1 31703.17 2303.893
+    ## result.2 2 25366.52 1647.230
+    ## result.3 3 22964.93 1960.314
+    ## result.4 4 21794.20 2133.844
+    ## result.5 5 21275.44 2351.496
+    ## result.6 6 20868.46 2252.027
 
 \#\#\#4 the relationship for RMSE and k，can find optimal k（line or
 point）
@@ -223,11 +225,11 @@ The optimal k for 350 is 15, and the optimal k for 65 AMG is 22
 \#\#\#5 model for each k (for each trim) \#\#6 Which trim have bigger
 optimal k? why?
 
-    ## [1] 10751.57
+    ## [1] 11843.12
 
 ![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-7-1.png)
 
-    ## [1] 34050.52
+    ## [1] 39823.98
 
 ![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-7-2.png)
 

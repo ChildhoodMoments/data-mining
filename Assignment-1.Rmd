@@ -220,6 +220,9 @@ ten_week_hit_musicians <- ggplot(data = part_c_2, )+
 ```{r ten_week_hit_musicians list}
 plot(ten_week_hit_musicians)
 ```
+
+
+
 ## question 3
 
 partA the 95th percentile of heights for female competitors across all Athletics events 
@@ -234,7 +237,8 @@ part_a_1 <- olympics_top20 %>%
   filter(sex == "F" & sport == "Athletics")%>%
   group_by(event) %>%
   summarise(ninety_fifth_percentile_height = quantile(height, 0.95))%>%
-  arrange(desc(ninety_fifth_percentile_height))
+  arrange(desc(ninety_fifth_percentile_height))%>%
+  head(20)
 part_a_2 <-  olympics_top20 %>%
   filter(sex == "F" & sport == "Athletics")
 ```
