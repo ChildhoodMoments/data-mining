@@ -75,7 +75,9 @@ ten-week hit, then filter people who have less than 30 songs
 we can get the plot like:
 
 ![](Assignment-1_files/figure-markdown_strict/ten_week_hit_musicians%20list-1.png)
-## question 3 ###a
+## question 3
+
+###a
 
 The 95th percentile of heights for female competitors across all
 Athletics events is 183
@@ -108,9 +110,9 @@ different for male swimmers relative to female swimmers
 
 ###3 run k nearest neighbors RMSEs
 
-    ## [1] 12896.88
+    ## [1] 11094.32
 
-    ## [1] 35346.98
+    ## [1] 28433.28
 
     ##    id trim subTrim condition isOneOwner mileage year  color displacement   fuel
     ## 1 282  350    unsp       CPO          f   21929 2012  Black        3.0 L Diesel
@@ -120,12 +122,12 @@ different for male swimmers relative to female swimmers
     ## 5 289  350    unsp      Used          t   66689 2012  Black        3.0 L Diesel
     ## 6 290  350    unsp       CPO          f   19567 2012  Black        3.0 L Diesel
     ##   state region   soundSystem wheelType wheelSize featureCount price fold_id
-    ## 1    MA    New          unsp      unsp      unsp           82 55994       5
-    ## 2    IL    ENC       Premium     Alloy      unsp           72 60900       5
+    ## 1    MA    New          unsp      unsp      unsp           82 55994       2
+    ## 2    IL    ENC       Premium     Alloy      unsp           72 60900       1
     ## 3    VA    SoA          unsp      unsp      unsp            5 54995       3
-    ## 4    NH    New Harman Kardon      unsp      unsp           83 59988       3
-    ## 5    NJ    Mid Harman Kardon     Alloy      unsp           79 37995       1
-    ## 6    LA    WSC       Premium     Alloy      unsp           76 59977       2
+    ## 4    NH    New Harman Kardon      unsp      unsp           83 59988       5
+    ## 5    NJ    Mid Harman Kardon     Alloy      unsp           79 37995       3
+    ## 6    LA    WSC       Premium     Alloy      unsp           76 59977       5
 
     ##     id   trim subTrim condition isOneOwner mileage year  color displacement
     ## 1 1060 65 AMG    unsp       New          f     106 2015  Black        6.0 L
@@ -142,30 +144,30 @@ different for male swimmers relative to female swimmers
     ## 5 Gasoline    OH    ENC        unsp      unsp      unsp           92 102500
     ## 6 Gasoline    CA    Pac        unsp      unsp      unsp            1 230860
     ##   fold_id
-    ## 1       4
-    ## 2       2
-    ## 3       5
-    ## 4       4
-    ## 5       5
-    ## 6       5
+    ## 1       1
+    ## 2       1
+    ## 3       2
+    ## 4       5
+    ## 5       3
+    ## 6       1
 
     ## Warning: executing %dopar% sequentially: no parallel backend registered
 
     ##          k      err  std_err
-    ## result.1 1 14354.94 726.9727
-    ## result.2 2 11778.65 469.4156
-    ## result.3 3 11063.78 517.8346
-    ## result.4 4 10597.76 572.4741
-    ## result.5 5 10355.93 620.3665
-    ## result.6 6 10144.08 479.6142
+    ## result.1 1 13828.47 637.4542
+    ## result.2 2 12255.26 695.4219
+    ## result.3 3 11212.70 678.1001
+    ## result.4 4 10871.14 698.8627
+    ## result.5 5 10513.48 717.5712
+    ## result.6 6 10302.57 683.0619
 
     ##          k      err  std_err
-    ## result.1 1 28568.62 1647.634
-    ## result.2 2 25038.69 1461.847
-    ## result.3 3 23122.48 1085.941
-    ## result.4 4 21778.12 1272.022
-    ## result.5 5 22275.87 1212.693
-    ## result.6 6 21503.31 1406.399
+    ## result.1 1 28571.54 2063.611
+    ## result.2 2 22984.74 1999.270
+    ## result.3 3 22982.31 1797.140
+    ## result.4 4 22424.96 1873.033
+    ## result.5 5 21831.22 2071.621
+    ## result.6 6 21469.71 2048.392
 
 ###4 the relationship for RMSE and k，can find optimal k（line or
 point）
@@ -175,11 +177,11 @@ The optimal k for 350 is 15, and the optimal k for 65 AMG is 22
 ###5 model for each k (for each trim) ##6 Which trim have bigger optimal
 k? why?
 
-    ## [1] 8944.75
+    ## [1] 12502.48
 
 ![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-10-1.png)
 
-    ## [1] 34309.59
+    ## [1] 40317.32
 
 ![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-10-2.png)
 

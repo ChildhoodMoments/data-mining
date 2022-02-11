@@ -213,6 +213,7 @@ ten_week_hit_musicians <- ggplot(data = part_c_2, )+
 plot(ten_week_hit_musicians)
 ```
 ## question 3
+
 ###a
 ```{r, echo =FALSE}
 olympics_top20 = read.csv("https://raw.githubusercontent.com/jgscott/ECO395M/master/data/olympics_top20.csv")
