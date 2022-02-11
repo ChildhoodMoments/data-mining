@@ -3,14 +3,10 @@
 calculate the average departure delay time over 2008 and make a plot to
 show that
 
-    plot(average_departure_delay_time_over_2008)
-
 ![](Assignment-1_files/figure-markdown_strict/plot%20average%20departure%20delay%20time%20over%202008-1.png)
 
 we can see the result that in most time, the delay time fluctulate
 between 0 and 20, and around Oct, the delay time is relatively small.
-
-    plot(delay_day)
 
 ![](Assignment-1_files/figure-markdown_strict/delay%20day-1.png)
 
@@ -21,8 +17,6 @@ and 06
 so we give a suggestion: try to catch earlier flight rather than later
 flight
 
-    plot(delay_affected_airline)
-
 ![](Assignment-1_files/figure-markdown_strict/delay%20time%20affected%20by%20airline-1.png)
 
 from that plot we can see that overall, US airline has the minimum delay
@@ -30,8 +24,6 @@ time, but we lack their data in some months, maybe they doesn’t arrange
 flightline during these months
 
 ## question 2
-
-    the_top_10_most_popular_songs
 
     ## # A tibble: 10 × 3
     ## # Groups:   performer [10]
@@ -55,8 +47,6 @@ partB
 we first excludes the years 1958 and 2021 then we can counts the number
 of times that a given song appears on the Top 100 in a given year
 
-    number_of_times_that_a_given_song
-
     ## # A tibble: 34,467 × 3
     ## # Groups:   year [62]
     ##     year song                                               count
@@ -76,8 +66,6 @@ of times that a given song appears on the Top 100 in a given year
 then we count the number of unique songs that appeared on the Top 100 in
 each year, irrespective of how many times it had appeared.
 
-    plot(unique_music)
-
 ![](Assignment-1_files/figure-markdown_strict/show%20musical%20diversity%20over%20the%20years-1.png)
 
 partC “ten-week hit” as a single song that appeared on the Billboard Top
@@ -86,27 +74,9 @@ ten-week hit, then filter people who have less than 30 songs
 
 we can get the plot like:
 
-    plot(ten_week_hit_musicians)
-
 ![](Assignment-1_files/figure-markdown_strict/ten_week_hit_musicians%20list-1.png)
 
 # question4
-
-    ## 載入需要的套件：lattice
-
-    ## 
-    ## 載入套件：'caret'
-
-    ## 下列物件被遮斷自 'package:purrr':
-    ## 
-    ##     lift
-
-    ## 
-    ## 載入套件：'foreach'
-
-    ## 下列物件被遮斷自 'package:purrr':
-    ## 
-    ##     accumulate, when
 
 ##1 Filter 350 & 65 AMG
 
@@ -114,9 +84,9 @@ we can get the plot like:
 
 ##3 run k nearest neighbors RMSEs
 
-    ## [1] 11281.95
+    ## [1] 10976.61
 
-    ## [1] 27136.79
+    ## [1] 40382.82
 
     ##    id trim subTrim condition isOneOwner mileage year  color displacement   fuel
     ## 1 282  350    unsp       CPO          f   21929 2012  Black        3.0 L Diesel
@@ -126,12 +96,12 @@ we can get the plot like:
     ## 5 289  350    unsp      Used          t   66689 2012  Black        3.0 L Diesel
     ## 6 290  350    unsp       CPO          f   19567 2012  Black        3.0 L Diesel
     ##   state region   soundSystem wheelType wheelSize featureCount price fold_id
-    ## 1    MA    New          unsp      unsp      unsp           82 55994       1
+    ## 1    MA    New          unsp      unsp      unsp           82 55994       3
     ## 2    IL    ENC       Premium     Alloy      unsp           72 60900       2
-    ## 3    VA    SoA          unsp      unsp      unsp            5 54995       5
-    ## 4    NH    New Harman Kardon      unsp      unsp           83 59988       1
-    ## 5    NJ    Mid Harman Kardon     Alloy      unsp           79 37995       4
-    ## 6    LA    WSC       Premium     Alloy      unsp           76 59977       1
+    ## 3    VA    SoA          unsp      unsp      unsp            5 54995       2
+    ## 4    NH    New Harman Kardon      unsp      unsp           83 59988       2
+    ## 5    NJ    Mid Harman Kardon     Alloy      unsp           79 37995       5
+    ## 6    LA    WSC       Premium     Alloy      unsp           76 59977       5
 
     ##     id   trim subTrim condition isOneOwner mileage year  color displacement
     ## 1 1060 65 AMG    unsp       New          f     106 2015  Black        6.0 L
@@ -148,30 +118,30 @@ we can get the plot like:
     ## 5 Gasoline    OH    ENC        unsp      unsp      unsp           92 102500
     ## 6 Gasoline    CA    Pac        unsp      unsp      unsp            1 230860
     ##   fold_id
-    ## 1       2
-    ## 2       1
-    ## 3       2
-    ## 4       2
-    ## 5       4
-    ## 6       4
+    ## 1       3
+    ## 2       2
+    ## 3       3
+    ## 4       1
+    ## 5       5
+    ## 6       3
 
     ## Warning: executing %dopar% sequentially: no parallel backend registered
 
     ##          k      err  std_err
-    ## result.1 1 13842.58 818.5473
-    ## result.2 2 11713.73 424.2141
-    ## result.3 3 10989.29 449.5173
-    ## result.4 4 10877.80 451.7470
-    ## result.5 5 10615.34 484.4478
-    ## result.6 6 10290.59 435.7895
+    ## result.1 1 14392.17 546.0786
+    ## result.2 2 12544.23 407.6068
+    ## result.3 3 11620.98 443.6365
+    ## result.4 4 11146.66 558.5040
+    ## result.5 5 10739.02 641.4782
+    ## result.6 6 10487.73 656.5116
 
     ##          k      err  std_err
-    ## result.1 1 28850.60 1784.698
-    ## result.2 2 24561.09 2122.123
-    ## result.3 3 23645.39 2027.609
-    ## result.4 4 22749.11 1677.285
-    ## result.5 5 22612.85 1344.745
-    ## result.6 6 21649.57 1345.786
+    ## result.1 1 30891.76 1548.871
+    ## result.2 2 25692.89 1030.810
+    ## result.3 3 22831.29 1818.625
+    ## result.4 4 22049.90 1530.119
+    ## result.5 5 22197.07 1412.166
+    ## result.6 6 21827.18 1173.434
 
 ##4 每個trim都畫出RMSE和K的關係，可看出optimal k（line or point）
 ![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-6-1.png)![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-6-2.png)
@@ -181,11 +151,11 @@ The optimal k for 350 is 15, and the optimal k for 65 AMG is 22
 
 ##6哪個trim有較大的optimal k? why?
 
-    ## [1] 11466.79
+    ## [1] 10467.84
 
 ![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-8-1.png)
 
-    ## [1] 36967.38
+    ## [1] 38641.2
 
 ![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-8-2.png)
 

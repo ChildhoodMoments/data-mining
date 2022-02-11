@@ -7,13 +7,23 @@ output:
 
 ---
 
-
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
 ## question 1
 
-```{r, include=FALSE}
+```{r, include=FALSE, message = FALSE,warning=FALSE}
 library(tidyverse)
 library(lubridate)
 library(RCurl)
+library(dplyr)
+library(ggplot2)
+library(rsample)  # for creating train/test splits
+library(caret)
+library(modelr)
+library(parallel)
+library(foreach)
+library(knitr)
 ABIA <- read.csv('https://raw.githubusercontent.com/jgscott/ECO395M/master/data/ABIA.csv')
 
 ```
@@ -103,8 +113,7 @@ from that plot we can see that overall, US airline has the minimum delay time, b
 ## question 2
 ```{r question 2, include=FALSE}
 billboard <- read.csv('https://raw.githubusercontent.com/jgscott/ECO395M/master/data/billboard.csv')
-library(tidyverse)
-library(knitr)
+
 
 ```
 
@@ -206,14 +215,7 @@ plot(ten_week_hit_musicians)
 
 # question4 
 ```{r, echo =FALSE}
-library(dplyr)
-library(tidyverse)
-library(ggplot2)
-library(rsample)  # for creating train/test splits
-library(caret)
-library(modelr)
-library(parallel)
-library(foreach)
+
 sclass <- read.csv("https://raw.githubusercontent.com/jgscott/ECO395M/master/data/sclass.csv")
 ```
 
