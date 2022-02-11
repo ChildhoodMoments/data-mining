@@ -75,18 +75,42 @@ ten-week hit, then filter people who have less than 30 songs
 we can get the plot like:
 
 ![](Assignment-1_files/figure-markdown_strict/ten_week_hit_musicians%20list-1.png)
+## question 3 ###a
 
-# question4
+The 95th percentile of heights for female competitors across all
+Athletics events is 183
 
-##1 Filter 350 & 65 AMG
+###b
 
-##2 spilt to test& training set
+    ## # A tibble: 1 × 2
+    ##   event                      height_var
+    ##   <chr>                           <dbl>
+    ## 1 Rowing Women's Coxed Fours       10.9
 
-##3 run k nearest neighbors RMSEs
+Rowing Women’s Coxed Fours had the greatest variability in competitor’s
+heights across the entire history of the Olympics, as measured by the
+standard deviation
 
-    ## [1] 10170.92
+###c
 
-    ## [1] 34273.82
+    ## `summarise()` has grouped output by 'sex'. You can override using the `.groups`
+    ## argument.
+
+![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-4-1.png) The
+average age of Olympic swimmers increased over time. The trend look
+different for male swimmers relative to female swimmers
+
+## question 4
+
+###1 Filter 350 & 65 AMG
+
+###2 spilt to test& training set
+
+###3 run k nearest neighbors RMSEs
+
+    ## [1] 12896.88
+
+    ## [1] 35346.98
 
     ##    id trim subTrim condition isOneOwner mileage year  color displacement   fuel
     ## 1 282  350    unsp       CPO          f   21929 2012  Black        3.0 L Diesel
@@ -96,12 +120,12 @@ we can get the plot like:
     ## 5 289  350    unsp      Used          t   66689 2012  Black        3.0 L Diesel
     ## 6 290  350    unsp       CPO          f   19567 2012  Black        3.0 L Diesel
     ##   state region   soundSystem wheelType wheelSize featureCount price fold_id
-    ## 1    MA    New          unsp      unsp      unsp           82 55994       2
-    ## 2    IL    ENC       Premium     Alloy      unsp           72 60900       2
-    ## 3    VA    SoA          unsp      unsp      unsp            5 54995       2
-    ## 4    NH    New Harman Kardon      unsp      unsp           83 59988       2
-    ## 5    NJ    Mid Harman Kardon     Alloy      unsp           79 37995       2
-    ## 6    LA    WSC       Premium     Alloy      unsp           76 59977       1
+    ## 1    MA    New          unsp      unsp      unsp           82 55994       5
+    ## 2    IL    ENC       Premium     Alloy      unsp           72 60900       5
+    ## 3    VA    SoA          unsp      unsp      unsp            5 54995       3
+    ## 4    NH    New Harman Kardon      unsp      unsp           83 59988       3
+    ## 5    NJ    Mid Harman Kardon     Alloy      unsp           79 37995       1
+    ## 6    LA    WSC       Premium     Alloy      unsp           76 59977       2
 
     ##     id   trim subTrim condition isOneOwner mileage year  color displacement
     ## 1 1060 65 AMG    unsp       New          f     106 2015  Black        6.0 L
@@ -118,45 +142,46 @@ we can get the plot like:
     ## 5 Gasoline    OH    ENC        unsp      unsp      unsp           92 102500
     ## 6 Gasoline    CA    Pac        unsp      unsp      unsp            1 230860
     ##   fold_id
-    ## 1       5
-    ## 2       1
+    ## 1       4
+    ## 2       2
     ## 3       5
-    ## 4       5
-    ## 5       4
+    ## 4       4
+    ## 5       5
     ## 6       5
 
     ## Warning: executing %dopar% sequentially: no parallel backend registered
 
     ##          k      err  std_err
-    ## result.1 1 13618.15 839.2263
-    ## result.2 2 12001.04 769.7469
-    ## result.3 3 11005.82 447.8463
-    ## result.4 4 10690.35 542.3353
-    ## result.5 5 10222.72 601.5331
-    ## result.6 6 10025.07 545.8134
+    ## result.1 1 14354.94 726.9727
+    ## result.2 2 11778.65 469.4156
+    ## result.3 3 11063.78 517.8346
+    ## result.4 4 10597.76 572.4741
+    ## result.5 5 10355.93 620.3665
+    ## result.6 6 10144.08 479.6142
 
     ##          k      err  std_err
-    ## result.1 1 29456.82 1827.754
-    ## result.2 2 24480.29 1451.698
-    ## result.3 3 23450.30 1210.884
-    ## result.4 4 22154.73 1430.636
-    ## result.5 5 21801.20 1557.566
-    ## result.6 6 21426.74 1812.475
+    ## result.1 1 28568.62 1647.634
+    ## result.2 2 25038.69 1461.847
+    ## result.3 3 23122.48 1085.941
+    ## result.4 4 21778.12 1272.022
+    ## result.5 5 22275.87 1212.693
+    ## result.6 6 21503.31 1406.399
 
-##4 the relationship for RMSE and k，can find optimal k（line or point）
-![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-6-1.png)![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-6-2.png)
+###4 the relationship for RMSE and k，can find optimal k（line or
+point）
+![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-9-1.png)![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-9-2.png)
 The optimal k for 350 is 15, and the optimal k for 65 AMG is 22
 
-##5 model for each k (for each trim) ##6 Which trim have bigger optimal
+###5 model for each k (for each trim) ##6 Which trim have bigger optimal
 k? why?
 
-    ## [1] 13403.48
+    ## [1] 8944.75
 
-![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-7-1.png)
+![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-10-1.png)
 
-    ## [1] 32168.77
+    ## [1] 34309.59
 
-![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-7-2.png)
+![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-10-2.png)
 
 65 AMG has a bigger optimal value of k.
 

@@ -212,14 +212,45 @@ ten_week_hit_musicians <- ggplot(data = part_c_2, )+
 ```{r ten_week_hit_musicians list}
 plot(ten_week_hit_musicians)
 ```
+## question 3
+###a
+```{r, echo =FALSE}
+olympics_top20 = read.csv("https://raw.githubusercontent.com/jgscott/ECO395M/master/data/olympics_top20.csv")
+```
+The 95th percentile of heights for female competitors across all Athletics events is 183
 
-# question4 
+###b
+```{r, echo =FALSE}
+olympics_top20 %>%
+  filter(sex=="F") %>%
+  group_by(event) %>%
+  summarize(height_var=sd(height)) %>%
+  arrange(desc(height_var)) %>%
+  head(1)
+```
+Rowing Women's Coxed Fours had the greatest variability in competitor's heights across the entire history of the Olympics, as measured by the standard deviation
+
+###c
+```{r, echo =FALSE}
+olympics_top20 %>%
+  filter(sport=="Swimming") %>%
+  group_by(sex,year) %>%
+  summarize(age_avg=mean(age)) %>%
+  ggplot(aes(x=year,y=age_avg,color=sex))+
+  geom_line()+
+  geom_point()
+```
+The average age of Olympic swimmers increased over time.
+The trend look different for male swimmers relative to female swimmers
+
+
+## question 4 
 ```{r, echo =FALSE}
 
 sclass <- read.csv("https://raw.githubusercontent.com/jgscott/ECO395M/master/data/sclass.csv")
 ```
 
-##1 Filter 350 & 65 AMG
+###1 Filter 350 & 65 AMG
 ```{r, echo =FALSE}
 def_350 = sclass%>%
   filter(trim == "350")
@@ -228,7 +259,7 @@ def_65 = sclass%>%
   filter(trim == "65 AMG")
 ```
 
-##2 spilt to test& training set
+###2 spilt to test& training set
 ```{r, echo =FALSE}
 def_350_spilt = initial_split(def_350 ,prop=0.8)
 def_350_train = training(def_350_spilt)
@@ -239,7 +270,7 @@ def_65_train = training(def_65_spilt)
 def_65_test = testing(def_65_spilt)
 ```
 
-##3 run k nearest neighbors  RMSEs
+###3 run k nearest neighbors  RMSEs
 ```{r, echo =FALSE}
 k_folds = 5
 k_grid = rep(1:100)
@@ -283,7 +314,7 @@ head(cv_grid_65)
 
 ```
 
-##4 the relationship for RMSE and k，can find optimal k（line or point）
+###4 the relationship for RMSE and k，can find optimal k（line or point）
 ```{r, echo =FALSE}
 ggplot(cv_grid_350) + 
   geom_point(aes(x= k, y= err)) + 
@@ -295,7 +326,7 @@ ggplot(cv_grid_65) +
 ```
 The optimal k for 350 is 15, and the optimal k for 65 AMG is 22
 
-##5 model for each k (for each trim) ##6 Which trim have bigger optimal k? why?
+###5 model for each k (for each trim) ##6 Which trim have bigger optimal k? why?
 ```{r, echo =FALSE}
 k_min_rmse_350 = cv_grid_350 %>%
   slice_min(err) %>%
