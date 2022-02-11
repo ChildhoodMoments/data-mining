@@ -1,4 +1,10 @@
-Author: Jyun\_Yu\_Cheng Li\_Zhao\_Du Yi\_Ji\_Gao
+Author:
+
+Jyun\_Yu\_Cheng
+
+Li\_Zhao\_Du
+
+Yi\_Ji\_Gao
 
 ## question 1
 
@@ -112,9 +118,9 @@ different for male swimmers relative to female swimmers
 
 ###3 run k nearest neighbors RMSEs
 
-    ## [1] 10546.73
+    ## [1] 11057.23
 
-    ## [1] 34219.45
+    ## [1] 32540.74
 
     ##    id trim subTrim condition isOneOwner mileage year  color displacement   fuel
     ## 1 282  350    unsp       CPO          f   21929 2012  Black        3.0 L Diesel
@@ -124,11 +130,11 @@ different for male swimmers relative to female swimmers
     ## 5 289  350    unsp      Used          t   66689 2012  Black        3.0 L Diesel
     ## 6 290  350    unsp       CPO          f   19567 2012  Black        3.0 L Diesel
     ##   state region   soundSystem wheelType wheelSize featureCount price fold_id
-    ## 1    MA    New          unsp      unsp      unsp           82 55994       2
-    ## 2    IL    ENC       Premium     Alloy      unsp           72 60900       1
-    ## 3    VA    SoA          unsp      unsp      unsp            5 54995       3
-    ## 4    NH    New Harman Kardon      unsp      unsp           83 59988       5
-    ## 5    NJ    Mid Harman Kardon     Alloy      unsp           79 37995       4
+    ## 1    MA    New          unsp      unsp      unsp           82 55994       5
+    ## 2    IL    ENC       Premium     Alloy      unsp           72 60900       3
+    ## 3    VA    SoA          unsp      unsp      unsp            5 54995       1
+    ## 4    NH    New Harman Kardon      unsp      unsp           83 59988       1
+    ## 5    NJ    Mid Harman Kardon     Alloy      unsp           79 37995       3
     ## 6    LA    WSC       Premium     Alloy      unsp           76 59977       1
 
     ##     id   trim subTrim condition isOneOwner mileage year  color displacement
@@ -148,28 +154,28 @@ different for male swimmers relative to female swimmers
     ##   fold_id
     ## 1       4
     ## 2       1
-    ## 3       1
+    ## 3       2
     ## 4       4
-    ## 5       5
-    ## 6       1
+    ## 5       4
+    ## 6       3
 
     ## Warning: executing %dopar% sequentially: no parallel backend registered
 
     ##          k      err  std_err
-    ## result.1 1 13497.13 597.9532
-    ## result.2 2 12049.20 431.6555
-    ## result.3 3 11695.67 513.4311
-    ## result.4 4 11101.69 591.8560
-    ## result.5 5 10734.08 542.8315
-    ## result.6 6 10708.09 509.7032
+    ## result.1 1 14488.50 740.9832
+    ## result.2 2 12491.00 703.0110
+    ## result.3 3 11393.74 637.9658
+    ## result.4 4 11258.93 563.1665
+    ## result.5 5 10813.69 610.7410
+    ## result.6 6 10576.47 510.6851
 
     ##          k      err   std_err
-    ## result.1 1 30921.84  960.6531
-    ## result.2 2 25384.47 1639.9462
-    ## result.3 3 24744.13 1652.0545
-    ## result.4 4 23566.93 2000.8048
-    ## result.5 5 22667.87 2008.5383
-    ## result.6 6 22696.68 2237.6985
+    ## result.1 1 31345.69 1035.2938
+    ## result.2 2 25433.27  847.9289
+    ## result.3 3 24634.72  929.5055
+    ## result.4 4 23997.87  769.9808
+    ## result.5 5 23887.78  809.8967
+    ## result.6 6 23553.32  786.9115
 
 ###4 the relationship for RMSE and k，can find optimal k（line or
 point）
@@ -179,11 +185,11 @@ The optimal k for 350 is 15, and the optimal k for 65 AMG is 22
 ###5 model for each k (for each trim) ##6 Which trim have bigger optimal
 k? why?
 
-    ## [1] 9881.405
+    ## [1] 10748.88
 
 ![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-10-1.png)
 
-    ## [1] 30344.76
+    ## [1] 36860.9
 
 ![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-10-2.png)
 
