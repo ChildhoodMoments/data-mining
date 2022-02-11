@@ -84,9 +84,9 @@ we can get the plot like:
 
 ##3 run k nearest neighbors RMSEs
 
-    ## [1] 10976.61
+    ## [1] 10170.92
 
-    ## [1] 40382.82
+    ## [1] 34273.82
 
     ##    id trim subTrim condition isOneOwner mileage year  color displacement   fuel
     ## 1 282  350    unsp       CPO          f   21929 2012  Black        3.0 L Diesel
@@ -96,12 +96,12 @@ we can get the plot like:
     ## 5 289  350    unsp      Used          t   66689 2012  Black        3.0 L Diesel
     ## 6 290  350    unsp       CPO          f   19567 2012  Black        3.0 L Diesel
     ##   state region   soundSystem wheelType wheelSize featureCount price fold_id
-    ## 1    MA    New          unsp      unsp      unsp           82 55994       3
+    ## 1    MA    New          unsp      unsp      unsp           82 55994       2
     ## 2    IL    ENC       Premium     Alloy      unsp           72 60900       2
     ## 3    VA    SoA          unsp      unsp      unsp            5 54995       2
     ## 4    NH    New Harman Kardon      unsp      unsp           83 59988       2
-    ## 5    NJ    Mid Harman Kardon     Alloy      unsp           79 37995       5
-    ## 6    LA    WSC       Premium     Alloy      unsp           76 59977       5
+    ## 5    NJ    Mid Harman Kardon     Alloy      unsp           79 37995       2
+    ## 6    LA    WSC       Premium     Alloy      unsp           76 59977       1
 
     ##     id   trim subTrim condition isOneOwner mileage year  color displacement
     ## 1 1060 65 AMG    unsp       New          f     106 2015  Black        6.0 L
@@ -118,46 +118,45 @@ we can get the plot like:
     ## 5 Gasoline    OH    ENC        unsp      unsp      unsp           92 102500
     ## 6 Gasoline    CA    Pac        unsp      unsp      unsp            1 230860
     ##   fold_id
-    ## 1       3
-    ## 2       2
-    ## 3       3
-    ## 4       1
-    ## 5       5
-    ## 6       3
+    ## 1       5
+    ## 2       1
+    ## 3       5
+    ## 4       5
+    ## 5       4
+    ## 6       5
 
     ## Warning: executing %dopar% sequentially: no parallel backend registered
 
     ##          k      err  std_err
-    ## result.1 1 14392.17 546.0786
-    ## result.2 2 12544.23 407.6068
-    ## result.3 3 11620.98 443.6365
-    ## result.4 4 11146.66 558.5040
-    ## result.5 5 10739.02 641.4782
-    ## result.6 6 10487.73 656.5116
+    ## result.1 1 13618.15 839.2263
+    ## result.2 2 12001.04 769.7469
+    ## result.3 3 11005.82 447.8463
+    ## result.4 4 10690.35 542.3353
+    ## result.5 5 10222.72 601.5331
+    ## result.6 6 10025.07 545.8134
 
     ##          k      err  std_err
-    ## result.1 1 30891.76 1548.871
-    ## result.2 2 25692.89 1030.810
-    ## result.3 3 22831.29 1818.625
-    ## result.4 4 22049.90 1530.119
-    ## result.5 5 22197.07 1412.166
-    ## result.6 6 21827.18 1173.434
+    ## result.1 1 29456.82 1827.754
+    ## result.2 2 24480.29 1451.698
+    ## result.3 3 23450.30 1210.884
+    ## result.4 4 22154.73 1430.636
+    ## result.5 5 21801.20 1557.566
+    ## result.6 6 21426.74 1812.475
 
-##4 每個trim都畫出RMSE和K的關係，可看出optimal k（line or point）
+##4 the relationship for RMSE and k，can find optimal k（line or point）
 ![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-6-1.png)![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-6-2.png)
 The optimal k for 350 is 15, and the optimal k for 65 AMG is 22
 
-##5 該k值對應的model(for each trim)
+##5 model for each k (for each trim) ##6 Which trim have bigger optimal
+k? why?
 
-##6哪個trim有較大的optimal k? why?
+    ## [1] 13403.48
 
-    ## [1] 10467.84
+![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-7-1.png)
 
-![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-8-1.png)
+    ## [1] 32168.77
 
-    ## [1] 38641.2
-
-![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-8-2.png)
+![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-7-2.png)
 
 65 AMG has a bigger optimal value of k.
 
