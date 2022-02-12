@@ -490,7 +490,14 @@ p_test_65
 
 350 trim has a bigger optimal value of k.
 
-Because 65 AMG trim has smaller data size compare to 350 trim level. fewer observations.On the other hand, smaller estimation variance generally requires a less complex model, so we need set k smaller to contain various noises data.And when sample size is smaller, our setting k progress would be affected. 
+Because 65 AMG trim has smaller data size compare to 350 trim level. 
+fewer observations.On the other hand, smaller estimation variance 
+generally requires a less complex model, small bias generally 
+requires a more complex model.And when sample size is smaller, our 
+setting k progress would be affected, in general we need set smaller 
+k if its data size is smaller.
+
+
 
 
 
