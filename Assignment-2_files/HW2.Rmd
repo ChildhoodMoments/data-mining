@@ -1,0 +1,230 @@
+---
+title: "HW2"
+author: "Lizhao"
+date: "2022/3/6"
+output: md_document
+---
+Author: 
+
+Jyun_Yu_Cheng
+
+Li_Zhao_Du
+
+Yi_Ji_Gao
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Question 1: 
+
+
+```{r Q1 lib, include=FALSE}
+library(tidyverse)
+library(dplyr)
+capmetro_UT <- read.csv('https://raw.githubusercontent.com/ChildhoodMoments/ECO395M-1/master/data/capmetro_UT.csv')
+
+```
+
+
+## plot_1: 
+One panel of line graphs that plots average boardings grouped by hour of the day, day of week, and month. You should facet by day of week. 
+
+```{r Q1 plot_1, include=FALSE}
+capmetro_UT = mutate(capmetro_UT,
+                     day_of_week = factor(day_of_week,
+                                          levels=c("Mon", "Tue", "Wed","Thu", "Fri", "Sat", "Sun")),
+                     month = factor(month,
+                                    levels=c("Sep", "Oct","Nov")))
+
+ave_board_hour = capmetro_UT %>%
+  group_by(hour_of_day, day_of_week,month) %>%
+  summarise(mean_boarding = mean(boarding)) %>%
+  ggplot(aes(x = hour_of_day, y = mean_boarding,color = month, ))+
+  geom_line()+
+  facet_wrap(~day_of_week)+
+  labs(title = "average boarding numbers ")
+
+```
+
+
+
+```{r average boarding numbers}
+plot(ave_board_hour)
+
+```
+
+We can get result from the plot "average boarding numbers" that:
+
+The hour of peak boardings broadly similar across the weekday, increases from the begining unil afternoon, reach at its peak at around 16:00 pm, then it decrease gradually.
+
+But the circumstance is different during weekends, they both keep at a lower level thoughout the weekends. 
+
+According to the red line in the first graph, we can see that the average boarding number of Sep's Monday is smaller than other month in same day(Monday) and its peak is also relative lower than other weekdays, lower than 125, comparing to other months or weekdays. What's more, the red line is always below other two lines in the Monday.
+
+We can also see that the average boarding number of Nov's Friday and Thursday is smaller than other month in the same day(Friday and Thursday and Wednesday). According to the blue line,their peak is only relative around 100.  Also we can see that the blue line is always below other two lines in Thursday and Friday and Wednesday
+
+
+
+
+
+
+## plot_2
+
+```{r Q1 plot_2, include=FALSE}
+ave_board_temp = capmetro_UT %>%
+  group_by(timestamp)%>%
+  ggplot(aes(x = temperature, y = boarding, color = weekend)) + 
+  geom_point(size = 0.7, alph = 0.5)+
+  facet_wrap(~hour_of_day)+
+  labs(title = 'boardings (y) vs. temperature (x) in each 15-minute window')
+  
+
+```
+
+```{r boardings (y) vs. temperature (x) in each 15-minute window, echo=FALSE}
+plot(ave_board_temp)
+```
+
+When we hold hour of day and weekend status constant, does temperature seem to have a noticeable effect on the number of UT students riding the bus?
+
+from the graph we can see than the temperature does not affect the boarding numbers significant, for same hour and days, there is not obvious trend that as the temperature increases in a relative high interval(70 ----100), the average boarding number decreases significantly, and also there is not obvious decrease trend during the relative low temperature level (0 --- 50)
+
+we can some times see that during peak time intervals, the highest point is lower as temperature rises
+
+
+### Q2
+```{r Q2 lib dataset, include=FALSE}
+library(tidyverse)
+library(lubridate)
+library(dplyr)
+library(rsample)  # for creating train/test splits
+library(caret)
+library(modelr)
+library(parallel)
+library(foreach)
+library(knitr)
+data("SaratogaHouses")
+```
+
+## build better model
+
+```{r split dataset, include=FALSE}
+saratoga_split = initial_split(SaratogaHouses, prop = 0.8)
+saratoga_train = training(saratoga_split)
+saratoga_test = testing(saratoga_split)
+
+```
+
+we try three different models, and calculate the RMSE
+
+```{r three different models, include=FALSE}
+lm1 = lm(price ~ lotSize + lotSize:age + age + 
+           landValue + bathrooms + sewer + centralAir, data=saratoga_train)
+
+lm2 = lm(price ~ lotSize + age + log(landValue) + log(livingArea) + 
+           bedrooms + bathrooms +  bedrooms:bathrooms + 
+           rooms + centralAir, data=saratoga_train)
+
+lm3 = lm(price ~  lotSize + age + log(landValue) 
+         + log(livingArea) + log(landValue):log(livingArea) 
+         + bedrooms + bathrooms + rooms + centralAir 
+         + fireplaces:waterfront, data=saratoga_train)
+
+```
+
+model_1 : lm(price ~ lotSize + lotSize:age + age + 
+           landValue + bathrooms + sewer + centralAir, data=saratoga_train)
+           
+model_2 : lm(price ~ lotSize + age + log(landValue) + log(livingArea) + 
+           bedrooms + bathrooms +  bedrooms:bathrooms + 
+           rooms + centralAir, data=saratoga_train)
+           
+model_3 : lm(price ~ lotSize + age + log(landValue) + log(livingArea) log(landValue):log(livingArea) + bedrooms + bathrooms + rooms + centralAir +      fireplaces:waterfront, data = saratoga_train)
+
+
+
+and we can get their out of sample's RMSE like:
+```{r linear models RMSE}
+rmse(lm1, saratoga_test)
+rmse(lm2, saratoga_test)
+rmse(lm3, saratoga_test)  
+
+```
+so I think model_3 is best model I can get from linear model
+
+build the best K-nearest-neighbor regression model for price
+I also use the same variables I used in model_3
+
+```{r knn model, include=FALSE}
+k_folds = 5
+SaratogaHouses_folds = crossv_kfold(SaratogaHouses, k=k_folds)
+
+k_grid = c(25:125)
+
+cv_SaratogaHouses = foreach(k = k_grid, .combine='rbind') %dopar% {
+  models = map(SaratogaHouses_folds$train, ~ knnreg(log(price) ~ log(landValue) + log(livingArea) + log(landValue):log(livingArea) + bedrooms + bathrooms + rooms + centralAir + fireplaces:waterfront, k=k, data = ., use.all=FALSE))
+  errs = map2_dbl(models, SaratogaHouses_folds$test, modelr::rmse)
+  c(k=k, err = mean(errs), std_err = sd(errs)/sqrt(k_folds))
+} %>% as.data.frame
+
+knn_k <- ggplot(cv_SaratogaHouses) + 
+  geom_point(aes(x= k, y= err),size = 1) + 
+  geom_errorbar(aes(x=k, ymin = err-std_err, ymax = err+std_err))+
+  geom_line(aes(x= k, y= err),size = 0.8)
+
+```
+
+we can get the best k as:
+```{r find the best k, include=FALSE}
+k_min_rmse = cv_SaratogaHouses %>%
+  slice_min(err) %>%
+  pull(k)
+
+```
+
+```{r show the best k}
+k_min_rmse
+```
+
+then We calculate the knn method RMSE
+
+```{r calculate knn for RMSE, include=FALSE}
+knn_SaratogaHouses_predict = knnreg(log(price) ~ log(landValue) + log(livingArea) + log(landValue):log(livingArea) + bedrooms + bathrooms + rooms + centralAir + fireplaces:waterfront, data=saratoga_train, k=k_min_rmse)
+
+RMSE_knn = rmse(knn_SaratogaHouses_predict, saratoga_test)
+```
+
+```{r show RMSE for knn method:}
+RMSE_knn
+
+```
+
+
+then averaging the estimate of out-of-sample RMSE over many different random train/test splits, either randomly or by cross-validation.
+
+```{r repeat the regression many times}
+library(parallel)
+rmse_sim = do(20)*{
+  # fresh train/test split
+  sara_split =  initial_split(SaratogaHouses, prop=0.8)
+  sara_train = training(sara_split)
+  sara_test  = testing(sara_split)
+  
+  # refit our models to this particular split
+  # we're using "update" here to avoid having to type out the giant model formulas
+  lm1 = update(lm1, data=sara_train)
+  lm2 = update(lm2, data=sara_train)
+  lm3 = update(lm3, data=sara_train)
+  
+  # collect the model errors in a single vector
+  model_errors = c(rmse(lm1, sara_test), rmse(lm2, sara_test), rmse(lm3, sara_test))
+  
+  # return the model errors
+  model_errors
+}
+```
+
+
+
