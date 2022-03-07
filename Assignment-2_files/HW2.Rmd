@@ -475,7 +475,7 @@ print(err_result)
 
 ```{r, include=FALSE}
 p0 = ggplot(data=err_result) + 
-  geom_histogram(aes(x=difference)) 
+  geom_histogram(aes(x=difference))
 
 ```
 
