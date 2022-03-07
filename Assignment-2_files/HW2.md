@@ -80,15 +80,15 @@ and we can get their out of sample’s RMSE like:
 
     rmse(lm1, saratoga_test)
 
-    ## [1] 61053.98
+    ## [1] 68573.44
 
     rmse(lm2, saratoga_test)
 
-    ## [1] 59968.06
+    ## [1] 63503.98
 
     rmse(lm3, saratoga_test)  
 
-    ## [1] 55297.07
+    ## [1] 61391.32
 
 so I think model\_3 is best model I can get from linear model
 
@@ -99,13 +99,13 @@ we can get the best k as:
 
     k_min_rmse
 
-    ## [1] 26
+    ## [1] 25
 
 then We calculate the knn method RMSE
 
     RMSE_knn
 
-    ## [1] 61636.56
+    ## [1] 66777.1
 
 then averaging the estimate of out-of-sample RMSE over many different
 random train/test splits, either randomly or by cross-validation.
