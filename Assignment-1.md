@@ -50,20 +50,67 @@ Top 100.
 
 we get the result:
 
-    ## # A tibble: 10 x 3
-    ## # Groups:   performer [10]
-    ##    performer                              song                             count
-    ##    <chr>                                  <chr>                            <int>
-    ##  1 Imagine Dragons                        Radioactive                         87
-    ##  2 AWOLNATION                             Sail                                79
-    ##  3 Jason Mraz                             I'm Yours                           76
-    ##  4 The Weeknd                             Blinding Lights                     76
-    ##  5 LeAnn Rimes                            How Do I Live                       69
-    ##  6 LMFAO Featuring Lauren Bennett & Goon~ Party Rock Anthem                   68
-    ##  7 OneRepublic                            Counting Stars                      68
-    ##  8 Adele                                  Rolling In The Deep                 65
-    ##  9 Jewel                                  Foolish Games/You Were Meant Fo~    65
-    ## 10 Carrie Underwood                       Before He Cheats                    64
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">performer</th>
+<th style="text-align: left;">song</th>
+<th style="text-align: right;">count</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Imagine Dragons</td>
+<td style="text-align: left;">Radioactive</td>
+<td style="text-align: right;">87</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">AWOLNATION</td>
+<td style="text-align: left;">Sail</td>
+<td style="text-align: right;">79</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Jason Mraz</td>
+<td style="text-align: left;">I’m Yours</td>
+<td style="text-align: right;">76</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">The Weeknd</td>
+<td style="text-align: left;">Blinding Lights</td>
+<td style="text-align: right;">76</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">LeAnn Rimes</td>
+<td style="text-align: left;">How Do I Live</td>
+<td style="text-align: right;">69</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">LMFAO Featuring Lauren Bennett &amp; GoonRock</td>
+<td style="text-align: left;">Party Rock Anthem</td>
+<td style="text-align: right;">68</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">OneRepublic</td>
+<td style="text-align: left;">Counting Stars</td>
+<td style="text-align: right;">68</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Adele</td>
+<td style="text-align: left;">Rolling In The Deep</td>
+<td style="text-align: right;">65</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Jewel</td>
+<td style="text-align: left;">Foolish Games/You Were Meant For Me</td>
+<td style="text-align: right;">65</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Carrie Underwood</td>
+<td style="text-align: left;">Before He Cheats</td>
+<td style="text-align: right;">64</td>
+</tr>
+</tbody>
+</table>
 
 from the table we can get top 10 most popular songs since 1958
 
@@ -188,20 +235,20 @@ question 4
     ## Warning: executing %dopar% sequentially: no parallel backend registered
 
     ##          k      err  std_err
-    ## result.1 1 13695.15 976.3383
-    ## result.2 2 12003.51 600.0563
-    ## result.3 3 11125.18 747.5780
-    ## result.4 4 10874.85 666.0187
-    ## result.5 5 10761.74 758.4485
-    ## result.6 6 10544.60 723.7011
+    ## result.1 1 13593.57 573.1390
+    ## result.2 2 11675.46 539.2404
+    ## result.3 3 11075.46 382.3186
+    ## result.4 4 10736.26 310.1723
+    ## result.5 5 10575.33 321.5964
+    ## result.6 6 10225.49 330.6022
 
-    ##          k      err   std_err
-    ## result.1 1 27807.78 1541.3342
-    ## result.2 2 23945.93  944.0933
-    ## result.3 3 22235.61 1347.8117
-    ## result.4 4 22000.99 1507.6568
-    ## result.5 5 21958.50 1545.5383
-    ## result.6 6 21585.40 1747.2266
+    ##          k      err  std_err
+    ## result.1 1 29327.89 2064.075
+    ## result.2 2 23840.60 1784.914
+    ## result.3 3 21788.25 1979.042
+    ## result.4 4 21155.26 1981.973
+    ## result.5 5 21794.79 2002.342
+    ## result.6 6 21121.85 2008.562
 
 \#\#\#4 the relationship for RMSE and k，can find optimal k（line or
 point）
@@ -210,15 +257,15 @@ Then we try to find the optimal k for each trim
 
 so the optimal k for trim 350 and its RMSE is:
 
-    ## [1] 17
+    ## [1] 11
 
-    ## [1] 9734.978
+    ## [1] 9075.031
 
 so the optimal k for trim 65\_AUG and its RMSE is:
 
-    ## [1] 7
+    ## [1] 10
 
-    ## [1] 20714.21
+    ## [1] 20645.52
 
 then we fit the model to the training set and make predictions on your
 test set
@@ -226,14 +273,14 @@ test set
 so the out-of-sample root mean-squared error (RMSE) for trim 350 is and
 its fitting graph is:
 
-    ## [1] 9045.677
+    ## [1] 10785.48
 
 ![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-13-1.png)
 
 so the out-of-sample root mean-squared error (RMSE) for trim 350 is and
 its fitting graph is:
 
-    ## [1] 20179.33
+    ## [1] 15897.91
 
 ![](Assignment-1_files/figure-markdown_strict/unnamed-chunk-16-1.png)
 
@@ -241,6 +288,7 @@ its fitting graph is:
 
 Because 65 AMG trim has smaller data size compare to 350 trim level.
 fewer observations.On the other hand, smaller estimation variance
-generally requires a less complex model, so we need set k smaller to
-contain various noises data.And when sample size is smaller, our setting
-k progress would be affected.
+generally requires a less complex model, small bias generally requires a
+more complex model.And when sample size is smaller, our setting k
+progress would be affected, in general we need set smaller k if its data
+size is smaller.

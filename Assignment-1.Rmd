@@ -140,7 +140,7 @@ the_top_10_most_popular_songs = billboard %>%
 
 
 ```{r the top 10 most popular songs since 1958 table }
-(the_top_10_most_popular_songs)
+knitr::kable(the_top_10_most_popular_songs,"pipe")
 
 ```
 from the table we can get top 10 most popular songs since 1958
