@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 
-# Question 1
+## Question 1
 ```{r,echo=FALSE, message= FALSE, warning=FALSE}
 library(RCurl)
 library(tidyverse)
@@ -27,7 +27,8 @@ capmetro_UT = read.csv('https://raw.githubusercontent.com/jgscott/ECO395M/master
 ```
 
 ```{r,echo=FALSE, message= FALSE, warning=FALSE}
-
+#把categorical variables按合理的排列，不按字母順序排
+#mutate用來新增資料框（衍生變數or非衍生變數都可以）
 capmetro_UT = mutate(capmetro_UT,
                      day_of_week = factor(day_of_week,
                      levels=c("Mon", "Tue", "Wed","Thu", "Fri", "Sat", "Sun")),
@@ -36,9 +37,14 @@ capmetro_UT = mutate(capmetro_UT,
 ```
 
 ```{r,echo=FALSE, message= FALSE, warning=FALSE}
+#calculate the average boarding time by group
+#summarize 中輸入摘要對象的資料框(capmetro_UT，以及欲摘要的變數名稱（mean)
+#先把campmetro_UT按hour of day, day of week,month去分群(by group_by，再使用summarize去計算mean(by summarize),命名為meanboarding
+
 average_boarding = capmetro_UT %>%
   group_by(hour_of_day, day_of_week, month) %>%
   summarize(mean_boarding = mean(boarding)) 
+average_boarding
 ```
 
 ```{r,echo=FALSE, message= FALSE, warning=FALSE}
@@ -47,7 +53,10 @@ week = mutate(capmetro_UT, weekdays = day_of_week == "Mon", "Tue", "Wed","Thu", 
 ```
 
 ```{r,echo=FALSE, message= FALSE, warning=FALSE}
-
+#graph 1
+#geom_line後面是規定x軸、y軸,color
+#facet_wrap是將圖照day_of_week去分類
+#scale_color_manual是更改線的顏色
 ggplot(average_boarding) +
   geom_line(aes(x = hour_of_day, y=mean_boarding, color=month)) +
   facet_wrap(~day_of_week) +
@@ -80,282 +89,132 @@ Problem1:
 Problem2:
 When we hold hour of day and weekend status constant, temperature seems have not an noticeable effect on the number of UT students riding the bus,the line is horizontal.
 
+#Question4
 
-#Question 2 
 ```{r,echo=FALSE, message= FALSE, warning=FALSE}
-library(tidyverse)
-library(lubridate)
-library(dplyr)
-library(rsample)  # for creating train/test splits
-library(caret)
-library(modelr)
-library(parallel)
-library(foreach)
-library(knitr)
-data("SaratogaHouses")
-```
 
-## build better model
-
-```{r split dataset, include=FALSE}
-saratoga_split = initial_split(SaratogaHouses, prop = 0.8)
-saratoga_train = training(saratoga_split)
-saratoga_test = testing(saratoga_split)
-```
-
-we try three different models, and calculate the RMSE
-
-```{r three different models, include=FALSE}
-lm1 = lm(price ~ lotSize + lotSize:age + age + 
-           landValue + bathrooms + sewer + centralAir, data=saratoga_train)
-lm2 = lm(price ~ lotSize + age + log(landValue) + log(livingArea) + 
-           bedrooms + bathrooms +  bedrooms:bathrooms + 
-           rooms + centralAir, data=saratoga_train)
-lm3 = lm(price ~  lotSize + age + log(landValue) 
-         + log(livingArea) + log(landValue):log(livingArea) 
-         + bedrooms + bathrooms + rooms + centralAir 
-         + fireplaces:waterfront, data=saratoga_train)
-```
-
-model_1 : lm(price ~ lotSize + lotSize:age + age + 
-               landValue + bathrooms + sewer + centralAir, data=saratoga_train)
-
-model_2 : lm(price ~ lotSize + age + log(landValue) + log(livingArea) + 
-               bedrooms + bathrooms +  bedrooms:bathrooms + 
-               rooms + centralAir, data=saratoga_train)
-
-model_3 : lm(price ~ lotSize + age + log(landValue) + log(livingArea) log(landValue):log(livingArea) + bedrooms + bathrooms + rooms + centralAir +      fireplaces:waterfront, data = saratoga_train)
-
-
-
-and we can get their out of sample's RMSE like:
-```{r linear models RMSE}
-rmse(lm1, saratoga_test)
-rmse(lm2, saratoga_test)
-rmse(lm3, saratoga_test)  
-```
-so I think model_3 is best model I can get from linear model
-
-build the best K-nearest-neighbor regression model for price
-I also use the same variables I used in model_3
-
-```{r knn model, include=FALSE}
-k_folds = 5
-SaratogaHouses_folds = crossv_kfold(SaratogaHouses, k=k_folds)
-k_grid = c(25:125)
-cv_SaratogaHouses = foreach(k = k_grid, .combine='rbind') %dopar% {
-  models = map(SaratogaHouses_folds$train, ~ knnreg(log(price) ~ log(landValue) + log(livingArea) + log(landValue):log(livingArea) + bedrooms + bathrooms + rooms + centralAir + fireplaces:waterfront, k=k, data = ., use.all=FALSE))
-  errs = map2_dbl(models, SaratogaHouses_folds$test, modelr::rmse)
-  c(k=k, err = mean(errs), std_err = sd(errs)/sqrt(k_folds))
-} %>% as.data.frame
-knn_k <- ggplot(cv_SaratogaHouses) + 
-  geom_point(aes(x= k, y= err),size = 1) + 
-  geom_errorbar(aes(x=k, ymin = err-std_err, ymax = err+std_err))+
-  geom_line(aes(x= k, y= err),size = 0.8)
-```
-
-we can get the best k as:
-```{r find the best k, include=FALSE}
-k_min_rmse = cv_SaratogaHouses %>%
-  slice_min(err) %>%
-  pull(k)
-```
-
-```{r show the best k}
-k_min_rmse
-```
-
-then We calculate the knn method RMSE
-
-```{r calculate knn for RMSE, include=FALSE}
-knn_SaratogaHouses_predict = knnreg(log(price) ~ log(landValue) + log(livingArea) + log(landValue):log(livingArea) + bedrooms + bathrooms + rooms + centralAir + fireplaces:waterfront, data=saratoga_train, k=k_min_rmse)
-RMSE_knn = rmse(knn_SaratogaHouses_predict, saratoga_test)
-```
-
-```{r show RMSE for knn method:}
-RMSE_knn
-```
-
-
-then averaging the estimate of out-of-sample RMSE over many different random train/test splits, either randomly or by cross-validation.
-
-```{r repeat the regression many times}
-library(parallel)
-rmse_sim = do(20)*{
-  # fresh train/test split
-  sara_split =  initial_split(SaratogaHouses, prop=0.8)
-  sara_train = training(sara_split)
-  sara_test  = testing(sara_split)
-  
-  # refit our models to this particular split
-  # we're using "update" here to avoid having to type out the giant model formulas
-lm1 = update(lm1, data=sara_train)
-lm2 = update(lm2, data=sara_train)
-lm3 = update(lm3, data=sara_train)
-
-# collect the model errors in a single vector
-model_errors = c(rmse(lm1, sara_test), rmse(lm2, sara_test), rmse(lm3, sara_test))
-
-# return the model errors
-model_errors
-}
-```
-
-# Question 3 Classification and retrospective sampling
-
-first we input dataset and make a bar plot of default probability by credit history,
-Make a bar plot of default probability by credit history
-
-```{r Q3 , include=FALSE}
-library(tidyverse)
-library(dplyr)
-german_credit <- read.csv('https://raw.githubusercontent.com/jgscott/ECO395M/master/data/german_credit.csv')
-table_default_history <-  as.data.frame(table(german_credit$Default, german_credit$history))
-prob_default <- german_credit%>%group_by(Default, history) %>% summarise(n = n())%>% 
-  group_by(history) %>%mutate(feq = n/sum(n))
-barplot_default <- ggplot(data = prob_default)+
-  geom_bar(mapping = aes(x = history, y = feq, fill = factor(Default)), position = 'dodge',stat='identity')+
-  #must add stat = 'identity' basically telling ggplot2 you will provide the y-values for the barplot, 
-  #rather than counting the aggregate number of rows for each x value, which is the default stat=count
-  #https://stackoverflow.com/questions/61068031/error-stat-count-can-only-have-an-x-or-y-aesthetic
-  labs(title = "probability of default based on their own history ")+
-  labs(x = 'history', y = 'probability')
-```
-
-```{r Q3 bar_plot, include=FALSE}
-plot(barplot_default)
-```
-
-then build a logistic regression model for predicting default probability
-
-```{r Q3 build a logistic regression, include=FALSE}
-logit_history = glm(Default~duration + amount + installment + age + history + purpose + foreign, data = german_credit, family = 'binomial')
-```
-
-
-```{r Q3 regression coefficient result,}
-summary(logit_history)
-```
-
-We can see the result that coefficent of history: poor and terible history have a huge negative effect on Default.Check the statstical significant for these variables, it shows they are statistical significant
-
-I don't think this data set is appropiate for building a predictive model, since bank sampled a set of loans that had defaulted for inclusion in the study.
-
-
-# Question 4
-```{r,echo=FALSE, message= FALSE, warning=FALSE}
 library(tidyverse)
 library(ggplot2)
-library(mosaic)
-library(rsample)
-library(parallel)
-library(foreach)
-library(gamlr)
 library(modelr)
+library(rsample)
+library(mosaic)
+library(lubridate)
+library(ModelMetrics)
+
+
+
+hotels_dev <- read.csv("https://raw.githubusercontent.com/jgscott/ECO395M/master/data/hotels_dev.csv")
+hotels_val <- read.csv("https://raw.githubusercontent.com/jgscott/ECO395M/master/data/hotels_val.csv")
 ```
+Using only the data in hotels.dev.csv, please compare the out-of-sample performance of the following models:
 
 ```{r,echo=FALSE, message= FALSE, warning=FALSE}
-# Read the data
-hotels_dev = read.csv("https://raw.githubusercontent.com/jgscott/ECO395M/master/data/hotels_dev.csv")
-hotels_val = read.csv("https://raw.githubusercontent.com/jgscott/ECO395M/master/data/hotels_val.csv")
-hotels_dev = hotels_dev %>% filter(reserved_room_type != "L") 
-head(hotels_dev)
-head(hotels_val)
+hotels_dev = mutate(hotels_dev, Time = ymd(arrival_date), month = month(Time) %>% factor())
+hotels_val = mutate(hotels_val, Time = ymd(arrival_date), month = month(Time) %>% factor())
 
-ggplot(data = hotels_dev) +
-  geom_histogram(aes(x=children), binwidth=0.3,color = "blue" )
+hotels_dev_split = initial_split(hotels_dev, prop = 0.8)
+hotels_dev_split_train = training(hotels_dev_split)
+hotels_dev_split_test = testing(hotels_dev_split)
+
+# baseline 1: a small model that uses only the market_segment, adults, customer_type, and is_repeated_guest variables as features.
+lm1 = lm(children ~ market_segment + adults + customer_type + is_repeated_guest,  data = hotels_dev_split_train,)
+lm2 = lm(children ~ . -arrival_date, data = hotels_dev_split_train,)
+# transfer arrival_date  as a time stamp,  in a specific format: Y-M-D    feature-engineer.R
+
+lm3 = lm(children ~ . -arrival_date + market_segment:distribution_channel + month, data = hotels_dev_split_train,)
+
+glm1 = glm(children ~ market_segment + adults + customer_type + is_repeated_guest,  data = hotels_dev_split_train, family = 'binomial')
+glm2 = glm(children ~ . -arrival_date, data = hotels_dev_split_train, family = 'binomial')
+glm3 = glm(children ~ . -arrival_date + market_segment:distribution_channel + month, data = hotels_dev_split_train, family = 'binomial')
+
+rmse(lm1, hotels_dev_split_test)
+rmse(lm2, hotels_dev_split_test)
+rmse(lm3, hotels_dev_split_test)
+rmse(glm1, hotels_dev_split_test)
+rmse(glm2, hotels_dev_split_test)
+rmse(glm3, hotels_dev_split_test)
 ```
+
 
 ```{r,echo=FALSE, message= FALSE, warning=FALSE}
-### Step 1. Model building
-hotels_dev_split = initial_split(hotels_dev, prop = 0.7)
-hotels_dev_train = training(hotels_dev_split)
-hotels_dev_test = testing(hotels_dev_split)
+#Model validation: step 1
+# spamtoy.R
+
+probhat = predict(lm3, newdata = hotels_val)
+probs <- exp(probhat)/(1 + exp(probhat))
+
+probhat_2 <- predict(glm3, newdata = hotels_val)
+
+
+
+# or get probability directly use
+#pred = predict(glm3, newdata = hotels_val, type = 'response')
+#head(pred)
+
+#children_hat =  ifelse(probhat >= 0.5, 1, 0)
+#table(children = hotels_val$children, children_hat = children_hat)
+
+
+library(ROCR)
+
+# ROC curve
+#https://www.bilibili.com/video/BV1Y64y1Z7Ht
+ROCR = prediction(probhat, hotels_val$children)
+perf = performance(ROCR, 'tpr','fpr')
+
+ROCR_2 = prediction(probhat_2, hotels_val$children)
+perf_2 = performance(ROCR_2, 'tpr', 'fpr')
+
+x <- unlist(perf@x.values)
+y <- unlist(perf@y.values)
+plotdata <- data.frame(x,y)
+names(plotdata) <- c('x', 'y')
+
+g <- ggplot(plotdata)+ 
+  geom_path(aes(x = x, y = y, color = x), size =1)+
+  labs(x = 'False positive rate', y = 'True positive rate', title = 'ROC Curves based on linear model')
+  
+x_2 <- unlist(perf_2@x.values)
+y_2 <- unlist(perf_2@y.values)
+plotdata_2 <- data.frame(x_2,y_2)
+names(plotdata_2) <- c('x_2', 'y_2')
+
+g_2  <- ggplot(plotdata_2)+ 
+  geom_path(aes(x = x_2, y = y_2, color = x_2), size =1)+
+  labs(x = 'False positive rate', y = 'True positive rate', title = 'ROC Curves based on logit model')
 ```
+
 
 ```{r,echo=FALSE, message= FALSE, warning=FALSE}
-## <1> Build the Models
+hotels_val_split = initial_split(hotels_val, prop = 0.8)
+hotels_val_split_train = training(hotels_val_split)
+hotels_val_split_test = testing(hotels_val_split)
+library(caret)
 
-### Model1: only uses the market_segment, adults, customer_type, and is_repeated_guest variables as features
-baselinemodel1 = glm(children ~ market_segment + adults + customer_type + is_repeated_guest,
-                     data = hotels_dev_train, family = "binomial")
+set.seed(100)
+indexs = createFolds(1:dim(hotels_val)[1], k = 20, list = TRUE, returnTrain = FALSE)
+err_result = c()
+model = glm(children ~ . -arrival_date + market_segment:distribution_channel + month, data = hotels_val, family = 'binomial')
+for (i in 1:20){
+  slice_data = hotels_val[indexs[[i]],]
+  prediction = predict(model,newdata = slice_data,type = "response")
+  predict_num = round(mean(prediction)*dim(slice_data)[1])
+  ### expected number of bookings with children for that fold.
+  actual_num = sum(slice_data$children)
+  err_result = rbind(err_result,c(actual_num,predict_num))
+} 
 
-### Model2: uses all the possible predictors except the arrival_date variable
-baselinemodel2 = glm(children ~ . - arrival_date , data = hotels_dev_train, family = "binomial")
+# The following is the summary of expected number of bookings with children for that 
+# fold and actual number
 
-### Model3: build the best model - use stepwise selection 
-###start with a resonable guess: we use market_segment, adults, customer_type as features
-guessmodel = glm(children ~ market_segment + adults + customer_type + is_repeated_guest + reserved_room_type + assigned_room_type,
-                 data = hotels_dev_train, family = "binomial")
-bestmodel2 = step(guessmodel, 
-                  scope=~(.)^2)
-getCall(bestmodel2)
-coef(bestmodel2)
-###assess the out-of-sample performance of the 3 models
-rmse(baselinemodel1, hotels_dev_train)
-rmse(baselinemodel2, hotels_dev_train)
-rmse(bestmodel2, hotels_dev_train)
+err_result = data.frame(err_result)
+colnames(err_result)=c("actual_num","predict_num") 
+err_result$difference = err_result$predict_num-err_result$actual_num
+print(err_result)
+
+# The following figure demonstrates the distribution of difference beween actual number
+# and expected number.
+p0 = ggplot(data=err_result) + 
+  geom_histogram(aes(x=difference)) 
+p0
 ```
-My model didn't perform well.
-In the new dataset, rmse of new set is smaller than rmse of split set, but still close. The rmse of baseline1 is still the lowest.
-
-# Model validation: step 1 
-```{r,echo=FALSE, message= FALSE, warning=FALSE}
-#prediction with validation set
-phat_predict_bestmodel = predict(bestmodel2,hotels_val,type = "response")
-# calculate TPR(t) versus FPR(t) as vary the classification threshold t.
-t_grid = rep(1:49)/50
-ROC_def = foreach(t = t_grid, .combine='rbind') %dopar% {
-  yhat_best = ifelse(phat_predict_bestmodel > t, 1, 0)
-  confusion_best = table(y=hotels_val$children, yhat=yhat_best)
-  TPR_best = confusion_best[2,2]/(confusion_best[2,2]+confusion_best[2,1]) %>% round(3)
-  FPR_best = confusion_best[1,2]/(confusion_best[1,1]+confusion_best[1,2]) %>% round(3)
-  c(t=t, TPR = TPR_best, FPR = FPR_best)
-} %>% as.data.frame()
-```
-
-```{r,echo=FALSE, message= FALSE, warning=FALSE}
-#plot the graph
-ggplot(ROC_def) +
-  geom_line(aes(x=t, y=TPR, color = "TPR"), size=1) +
-  geom_line(aes(x=t, y=FPR, color = "FPR"), size=1) +
-  labs(y="TPR/FPR", x = "t", color=" ")
-
-#True ROC curve
-ggplot(ROC_def) +
-  geom_line(aes(x=FPR, y=TPR), size=1) +
-  labs(y="TPR", x = "FPR", color=" ")
-```
-
-```{r,echo=FALSE, message= FALSE, warning=FALSE}
-# Model validation: step 2
-#create 20 folds of hotel_val
-K_folds = 20
-
-hotels_val = hotels_val %>%
-  mutate(fold_id = rep(1:K_folds, length=nrow(hotels_val)) %>% sample)
-#predict whether each booking will have children on it
-hotels_val_cv = foreach(fold = 1:K_folds, .combine='rbind') %dopar% {
-  hotels_val_folds_train = filter(hotels_val, fold_id == fold)
-  hotels_val_folds_phat = predict(bestmodel2, hotels_val_folds_train, type = "response")
-  c(y=sum(hotels_val_folds_train$children), Expected_y=sum(hotels_val_folds_phat)%>%round(0))
-} %>% as.data.frame()
-
-hotels_val_cv = hotels_val_cv %>%
-  mutate(fold_id = rep(1:K_folds))
-```
-
-```{r,echo=FALSE, message= FALSE, warning=FALSE}
-#compare the expected number with actual number of booking with children 
-ggplot(data = hotels_val_cv) +
-  geom_line(aes(x = fold_id, y = y, color = "Actual"),  size = 1) +
-  geom_line(aes(x = fold_id, y = Expected_y, color = "Expected"), size = 1) +
-  labs(y="Predicted and Actual Children for Each Fold", x = "t", color=" ")+
-  geom_point(aes(x = fold_id, y=y)) +
-  geom_point(aes(x = fold_id, y=Expected_y))
-```
-Not good. The prediction isn't accurate. Both numbers always move in the same direction, but the actual numbers wiggle more than predict number.
-
-
-
-
