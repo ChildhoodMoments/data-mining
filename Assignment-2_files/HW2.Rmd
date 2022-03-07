@@ -105,7 +105,10 @@ library(modelr)
 library(parallel)
 library(foreach)
 library(knitr)
-data("SaratogaHouses")
+library(mosaic)
+#SaratogaHouses = data("SaratogaHouses")
+data(SaratogaHouses)
+
 ```
 
 ## build better model
@@ -191,7 +194,7 @@ k_min_rmse
 then We calculate the knn method RMSE
 
 ```{r calculate knn for RMSE, include=FALSE}
-knn_SaratogaHouses_predict = knnreg(log(price) ~ log(landValue) + log(livingArea) + log(landValue):log(livingArea) + bedrooms + bathrooms + rooms + centralAir + fireplaces:waterfront, data=saratoga_train, k=k_min_rmse)
+knn_SaratogaHouses_predict = knnreg(price ~ log(landValue) + log(livingArea) + log(landValue):log(livingArea) + bedrooms + bathrooms + rooms + centralAir + fireplaces:waterfront, data=saratoga_train, k=k_min_rmse)
 
 RMSE_knn = rmse(knn_SaratogaHouses_predict, saratoga_test)
 ```
@@ -226,5 +229,53 @@ rmse_sim = do(20)*{
 }
 ```
 
+### Question 3 Classification and retrospective sampling
 
+first we input dataset and make a bar plot of default probability by credit history,
+Make a bar plot of default probability by credit history
+
+
+
+```{r Q3 , include=FALSE}
+library(tidyverse)
+library(dplyr)
+german_credit <- read.csv('https://raw.githubusercontent.com/jgscott/ECO395M/master/data/german_credit.csv')
+
+table_default_history <-  as.data.frame(table(german_credit$Default, german_credit$history))
+
+prob_default <- german_credit%>%group_by(Default, history) %>% summarise(n = n())%>% 
+  group_by(history) %>%mutate(feq = n/sum(n))
+
+barplot_default <- ggplot(data = prob_default)+
+  geom_bar(mapping = aes(x = history, y = feq, fill = factor(Default)), position = 'dodge',stat='identity')+
+  #must add stat = 'identity' basically telling ggplot2 you will provide the y-values for the barplot, 
+  #rather than counting the aggregate number of rows for each x value, which is the default stat=count
+  #https://stackoverflow.com/questions/61068031/error-stat-count-can-only-have-an-x-or-y-aesthetic
+  labs(title = "probability of default based on their own history ")+
+  labs(x = 'history', y = 'probability')
+
+```
+
+```{r Q3 bar_plot, include=FALSE}
+plot(barplot_default)
+
+```
+
+then build a logistic regression model for predicting default probability
+
+```{r Q3 build a logistic regression, include=FALSE}
+
+logit_history = glm(Default~duration + amount + installment + age + history + purpose + foreign, data = german_credit, family = 'binomial')
+
+```
+
+
+```{r Q3 regression coefficient result,}
+summary(logit_history)
+
+```
+
+We can see the result that coefficent of history: poor and terible history have a huge negative effect on Default.Check the statstical significant for these variables, it shows they are statistical significant
+
+I don't think this data set is appropiate for building a predictive model, since bank sampled a set of loans that had defaulted for inclusion in the study.
 
