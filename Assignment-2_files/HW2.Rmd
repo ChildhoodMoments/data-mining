@@ -279,3 +279,4 @@ We can see the result that coefficent of history: poor and terible history have 
 
 I don't think this data set is appropiate for building a predictive model, since bank sampled a set of loans that had defaulted for inclusion in the study.
 
+
