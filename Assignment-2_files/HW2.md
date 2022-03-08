@@ -80,59 +80,53 @@ and we can get their out of sample’s RMSE like:
 
     rmse(lm1, saratoga_test)
 
-    ## [1] 68573.44
+    ## [1] 66349.99
 
     rmse(lm2, saratoga_test)
 
-    ## [1] 63503.98
+    ## [1] 68852.11
 
     rmse(lm3, saratoga_test)  
 
-    ## [1] 61391.32
+    ## [1] 64361.76
 
-so I think model\_3 is best model I can get from linear model
-
-build the best K-nearest-neighbor regression model for price I also use
-the same variables I used in model\_3
+so I think model\_3 is best model I can get from linear model build the
+best K-nearest-neighbor regression model for price I also use the same
+variables I used in model\_3
 
 we can get the best k as:
 
     k_min_rmse
 
-    ## [1] 25
-
-then We calculate the knn method RMSE
-
-    RMSE_knn
-
-    ## [1] 66777.1
+    ## [1] 35
 
 then averaging the estimate of out-of-sample RMSE over many different
-random train/test splits, either randomly or by cross-validation.
+random train/test splits, either randomly or by cross-validation. then
+we do this 20 times to get the average RMSE based on model\_3
+coefficient setting
 
-    library(parallel)
-    rmse_sim = do(20)*{
-      # fresh train/test split
-      sara_split =  initial_split(SaratogaHouses, prop=0.8)
-      sara_train = training(sara_split)
-      sara_test  = testing(sara_split)
-      
-      # refit our models to this particular split
-      # we're using "update" here to avoid having to type out the giant model formulas
-      lm1 = update(lm1, data=sara_train)
-      lm2 = update(lm2, data=sara_train)
-      lm3 = update(lm3, data=sara_train)
-      
-      # collect the model errors in a single vector
-      model_errors = c(rmse(lm1, sara_test), rmse(lm2, sara_test), rmse(lm3, sara_test))
-      
-      # return the model errors
-      model_errors
-    }
+First, we do the linear regression for model\_1, model\_2, model\_3 for
+20 times, make sure model\_3 has the smallest RMSE
 
-    ## Using parallel package.
-    ##   * Set seed with set.rseed().
-    ##   * Disable this message with options(`mosaic:parallelMessage` = FALSE)
+we get the average RMSE for each model as:
+
+    colMeans(rmse_sim)
+
+    ##       V1       V2       V3 
+    ## 67417.14 65322.88 63654.12
+
+then we use coefficient of model\_3 get its average RMSE after 20 times
+
+and we can get the average knn model RMSE for twenty times as:
+
+    colMeans(rmse_sim_2)
+
+    ##    result 
+    ## 0.6509114
+
+from the model we can see that the model\_3 has lower RMSE, which means
+we can use it to estimate the price. since we will use different
+results, but
 
 ### Question 3 Classification and retrospective sampling
 
@@ -186,3 +180,64 @@ significant
 I don’t think this data set is appropiate for building a predictive
 model, since bank sampled a set of loans that had defaulted for
 inclusion in the study.
+
+### question 4
+
+Using only the data in hotels.dev.csv, please compare the out-of-sample
+performance of the following models:
+
+I use 3 linear model and 3 logit model
+
+    # baseline 1: a small model that uses only the market_segment, adults, customer_type, and is_repeated_guest variables as features.
+    lm1 = lm(children ~ market_segment + adults + customer_type + is_repeated_guest,  data = hotels_dev_split_train,)
+    lm2 = lm(children ~ . -arrival_date, data = hotels_dev_split_train,)
+    # transfer arrival_date  as a time stamp,  in a specific format: Y-M-D    feature-engineer.R
+
+    lm3 = lm(children ~ . -arrival_date + market_segment:distribution_channel + month, data = hotels_dev_split_train,)
+
+    glm1 = glm(children ~ market_segment + adults + customer_type + is_repeated_guest,  data = hotels_dev_split_train, family = 'binomial')
+    glm2 = glm(children ~ . -arrival_date, data = hotels_dev_split_train, family = 'binomial')
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    glm3 = glm(children ~ . -arrival_date + market_segment:distribution_channel + month, data = hotels_dev_split_train, family = 'binomial')
+
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+    plot(g)
+
+![](HW2_files/figure-markdown_strict/unnamed-chunk-2-1.png)
+
+    plot(g_2)
+
+![](HW2_files/figure-markdown_strict/unnamed-chunk-2-2.png)
+
+    print(err_result)
+
+    ##    actual_num predict_num difference
+    ## 1          18          21          3
+    ## 2          20          21          1
+    ## 3          12          15          3
+    ## 4          17          17          0
+    ## 5          23          21         -2
+    ## 6          25          25          0
+    ## 7          28          21         -7
+    ## 8          17          17          0
+    ## 9          24          18         -6
+    ## 10         18          18          0
+    ## 11         14          21          7
+    ## 12         19          21          2
+    ## 13         17          22          5
+    ## 14         18          21          3
+    ## 15         19          19          0
+    ## 16         20          17         -3
+    ## 17         24          22         -2
+    ## 18         24          24          0
+    ## 19         21          20         -1
+    ## 20         24          21         -3
+
+    plot(p0)
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](HW2_files/figure-markdown_strict/unnamed-chunk-7-1.png)

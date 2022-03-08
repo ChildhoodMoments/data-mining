@@ -356,7 +356,7 @@ hotels_dev_split_test = testing(hotels_dev_split)
 ```
 
 I use 3 linear model and 3 logit model
-```{r model}
+```{r model, include=FALSE}
 
 # baseline 1: a small model that uses only the market_segment, adults, customer_type, and is_repeated_guest variables as features.
 lm1 = lm(children ~ market_segment + adults + customer_type + is_repeated_guest,  data = hotels_dev_split_train,)
@@ -372,6 +372,8 @@ glm3 = glm(children ~ . -arrival_date + market_segment:distribution_channel + mo
 
 ```
 
+
+and we get result: 
 ```{r model result, include=FALSE}
 rmse(lm1, hotels_dev_split_test)
 rmse(lm2, hotels_dev_split_test)
@@ -470,7 +472,7 @@ err_result$difference = err_result$predict_num-err_result$actual_num
 ```
 
 ```{r}
-print(err_result)
+err_result
 ```
 
 ```{r, include=FALSE}
