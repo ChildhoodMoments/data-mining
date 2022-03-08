@@ -80,15 +80,15 @@ and we can get their out of sample’s RMSE like:
 
     rmse(lm1, saratoga_test)
 
-    ## [1] 66349.99
+    ## [1] 66155.75
 
     rmse(lm2, saratoga_test)
 
-    ## [1] 68852.11
+    ## [1] 66149.94
 
     rmse(lm3, saratoga_test)  
 
-    ## [1] 64361.76
+    ## [1] 61864.74
 
 so I think model\_3 is best model I can get from linear model build the
 best K-nearest-neighbor regression model for price I also use the same
@@ -113,7 +113,7 @@ we get the average RMSE for each model as:
     colMeans(rmse_sim)
 
     ##       V1       V2       V3 
-    ## 67417.14 65322.88 63654.12
+    ## 65444.48 63927.73 61777.92
 
 then we use coefficient of model\_3 get its average RMSE after 20 times
 
@@ -121,8 +121,8 @@ and we can get the average knn model RMSE for twenty times as:
 
     colMeans(rmse_sim_2)
 
-    ##    result 
-    ## 0.6509114
+    ##  result 
+    ## 0.63779
 
 from the model we can see that the model\_3 has lower RMSE, which means
 we can use it to estimate the price. since we will use different
@@ -132,6 +132,10 @@ results, but
 
 first we input dataset and make a bar plot of default probability by
 credit history, Make a bar plot of default probability by credit history
+
+    plot(barplot_default)
+
+![](HW2_files/figure-markdown_strict/Q3%20bar_plot-1.png)
 
 then build a logistic regression model for predicting default
 probability
@@ -188,21 +192,24 @@ performance of the following models:
 
 I use 3 linear model and 3 logit model
 
-    # baseline 1: a small model that uses only the market_segment, adults, customer_type, and is_repeated_guest variables as features.
-    lm1 = lm(children ~ market_segment + adults + customer_type + is_repeated_guest,  data = hotels_dev_split_train,)
-    lm2 = lm(children ~ . -arrival_date, data = hotels_dev_split_train,)
-    # transfer arrival_date  as a time stamp,  in a specific format: Y-M-D    feature-engineer.R
+lm1 = lm(children ~ market\_segment + adults + customer\_type +
+is\_repeated\_guest, data = hotels\_dev\_split\_train,) lm2 =
+lm(children ~ . -arrival\_date, data = hotels\_dev\_split\_train,) lm3 =
+lm(children ~ . -arrival\_date + market\_segment:distribution\_channel +
+month, data = hotels\_dev\_split\_train,)
 
-    lm3 = lm(children ~ . -arrival_date + market_segment:distribution_channel + month, data = hotels_dev_split_train,)
+glm1 = glm(children ~ market\_segment + adults + customer\_type +
+is\_repeated\_guest, data = hotels\_dev\_split\_train, family =
+‘binomial’) glm2 = glm(children ~ . -arrival\_date, data =
+hotels\_dev\_split\_train, family = ‘binomial’) glm3 = glm(children ~ .
+-arrival\_date + market\_segment:distribution\_channel + month, data =
+hotels\_dev\_split\_train, family = ‘binomial’)
 
-    glm1 = glm(children ~ market_segment + adults + customer_type + is_repeated_guest,  data = hotels_dev_split_train, family = 'binomial')
-    glm2 = glm(children ~ . -arrival_date, data = hotels_dev_split_train, family = 'binomial')
+and we get result:
 
-    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+then we can get result that
 
-    glm3 = glm(children ~ . -arrival_date + market_segment:distribution_channel + month, data = hotels_dev_split_train, family = 'binomial')
-
-    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+we can get ROC curve from best logit model and best linear model as that
 
     plot(g)
 
@@ -212,7 +219,13 @@ I use 3 linear model and 3 logit model
 
 ![](HW2_files/figure-markdown_strict/unnamed-chunk-2-2.png)
 
-    print(err_result)
+step 2
+------
+
+by using the logit model, we can get estimated result for each fold, and
+it shows as this:
+
+    err_result
 
     ##    actual_num predict_num difference
     ## 1          18          21          3
@@ -236,8 +249,15 @@ I use 3 linear model and 3 logit model
     ## 19         21          20         -1
     ## 20         24          21         -3
 
+Then I use a plot to show how well our model do at predicting the total
+number of bookings with children in a group of 250 bookings
+
     plot(p0)
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
 ![](HW2_files/figure-markdown_strict/unnamed-chunk-7-1.png)
+
+We can see that the highest frequency of estimated error for each group
+is zero, and we can see that in both sides of 0, there exists a similar
+distribution, overall it shows a normal distibution.

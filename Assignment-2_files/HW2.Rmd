@@ -301,7 +301,7 @@ barplot_default <- ggplot(data = prob_default)+
 
 ```
 
-```{r Q3 bar_plot, include=FALSE}
+```{r Q3 bar_plot, }
 plot(barplot_default)
 
 ```
@@ -372,6 +372,15 @@ glm3 = glm(children ~ . -arrival_date + market_segment:distribution_channel + mo
 
 ```
 
+lm1 = lm(children ~ market_segment + adults + customer_type + is_repeated_guest,  data = hotels_dev_split_train,)
+lm2 = lm(children ~ . -arrival_date, data = hotels_dev_split_train,)
+lm3 = lm(children ~ . -arrival_date + market_segment:distribution_channel + month, data = hotels_dev_split_train,)
+
+glm1 = glm(children ~ market_segment + adults + customer_type + is_repeated_guest,  data = hotels_dev_split_train, family = 'binomial')
+glm2 = glm(children ~ . -arrival_date, data = hotels_dev_split_train, family = 'binomial')
+glm3 = glm(children ~ . -arrival_date + market_segment:distribution_channel + month, data = hotels_dev_split_train, family = 'binomial')
+
+
 
 and we get result: 
 ```{r model result, include=FALSE}
@@ -383,6 +392,7 @@ rmse(glm2, hotels_dev_split_test)
 rmse(glm3, hotels_dev_split_test)
 
 ```
+then we can get result that
 
 
 ```{r, include=FALSE}
@@ -401,6 +411,7 @@ probhat_2 <- predict(glm3, newdata = hotels_val)
 #head(pred)
 
 #children_hat =  ifelse(probhat >= 0.5, 1, 0)
+
 #table(children = hotels_val$children, children_hat = children_hat)
 
 
@@ -434,12 +445,14 @@ g_2  <- ggplot(plotdata_2)+
 
 
 ```
-
+we can get ROC curve from best logit model and best linear model as that 
 ```{r}
 plot(g)
 plot(g_2)
 ```
 
+
+## step 2
 
 ```{r, include=FALSE}
 # B
@@ -464,6 +477,8 @@ for (i in 1:20){
 ```
 
 
+by using the logit model, we can get estimated result for each fold, and it shows as this:
+
 ```{r, include=FALSE}
 err_result = data.frame(err_result)
 colnames(err_result)=c("actual_num","predict_num") 
@@ -480,8 +495,14 @@ p0 = ggplot(data=err_result) +
   geom_histogram(aes(x=difference))
 
 ```
+Then I use a plot to show how well our model do at predicting the total number of bookings with children in a group of 250 bookings
+
 
 ```{r}
 plot(p0)
 ```
+
+We can see that the highest frequency of estimated error for each group is zero, and we can see that in both sides of 0, there exists a similar distribution, overall it shows a normal distibution.
+
+
 
