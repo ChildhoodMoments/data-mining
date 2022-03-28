@@ -502,7 +502,8 @@ Then I use a plot to show how well our model do at predicting the total number o
 plot(p0)
 ```
 
-We can see that the highest frequency of estimated error for each group is zero, and we can see that in both sides of 0, there exists a similar distribution, overall it shows a normal distibution.
+We can see that the highest frequency of estimated error for each group is zero, and we can see that in both sides of 0, there exists a similar distribution, overall it shows a normal distribution.(since I use set.seed(100) command, it might affect the result)
+
 
 
 
