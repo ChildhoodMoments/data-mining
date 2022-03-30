@@ -1,0 +1,99 @@
+---
+title: "HW3_2"
+author: "Lizhao"
+date: "2022/3/28"
+output: md_document
+---
+
+
+## Tree modeling: dengue cases
+
+### import data
+
+```{r read csv, echo=FALSE}
+dengue <- read.csv('https://raw.githubusercontent.com/jgscott/ECO395M/master/data/dengue.csv')
+library(tidyverse)
+library(rpart)
+library(rpart.plot)
+library(rsample) 
+library(parallel)
+library(ModelMetrics)
+library(randomForest)
+```
+
+## CART
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r split dataset, echo=FALSE}
+dengue_split =  initial_split(dengue, prop=0.8)
+dengue_train = training(dengue_split)
+dengue_test  = testing(dengue_split)
+
+```
+
+```{r carts, echo=FALSE}
+cart_dengue = rpart(total_cases~ season + city + specific_humidity+tdtr_k+precipitation_amt, data=dengue_train,
+                  control = rpart.control(cp = 0.0000000002, minsplit=20))
+
+tree_plot = rpart.plot(cart_dengue, digits=-5, type=4, extra=1)
+cv_plot = plotcp(cart_dengue)
+
+```
+
+```{r cart plot zoom }
+plotcp(cart_dengue, ylim=c(0.6, 1))
+
+```
+use the '1SE rule' to pick a tree, create a function and choose the  smallest tree 
+
+```{r function that choose tree, include=FALSE}
+cp_1se = function(my_tree) {
+  out = as.data.frame(my_tree$cptable)
+  thresh = min(out$xerror + out$xstd)
+  cp_opt = max(out$CP[out$xerror <= thresh])
+  cp_opt
+}
+
+prune_1se = function(my_tree) {
+  out = as.data.frame(my_tree$cptable)
+  thresh = min(out$xerror + out$xstd)
+  cp_opt = max(out$CP[out$xerror <= thresh])
+  prune(my_tree, cp=cp_opt)
+}
+
+```
+so we get the CV error is within 1 std err of the minimum level:
+```{r smallest CV error, echo=FALSE}
+cp_1se(cart_dengue)
+
+```
+prunes the tree at that level, and we get its RMSE as:
+```{r smallest tree, echo=FALSE}
+dengue_prune = prune_1se(cart_dengue)
+modelr::rmse(dengue_prune, dengue_test)
+```
+
+## random forests
+we use the same variable as we used in CART:
+```{r random_forests, include=FALSE}
+dengue_forest = randomForest(total_cases ~ season + city + specific_humidity + tdtr_k + precipitation_amt, data=dengue_train %>% drop_na(), importance = TRUE)
+```
+
+we get its RMSE:
+```{r RMSE for random Forest, echo=FALSE}
+modelr::rmse(dengue_forest, dengue_test)
+
+```
+
+so in general, we can see that random forest is better than CART, and we make three partial dependence plots:
+
+```{r randomforest partial plots, echo=FALSE}
+partialPlot(dengue_forest, dengue_test %>% drop_na(), 'specific_humidity', las=1)
+
+partialPlot(dengue_forest, dengue_test %>% drop_na(), 'tdtr_k', las=1)
+partialPlot(dengue_forest, dengue_test %>% drop_na(), 'precipitation_amt', las=1)
+
+```
+
+
+
