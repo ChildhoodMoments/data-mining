@@ -1,0 +1,70 @@
+---
+title: "HW3_3"
+author: "Lizhao"
+date: "2022/3/29"
+output: md_document
+---
+
+```{r read csv, include=FALSE}
+greenbuildings <- read.csv('https://raw.githubusercontent.com/jgscott/ECO395M/master/data/greenbuildings.csv')
+library(tidyverse)
+library(rpart)
+library(rpart.plot)
+library(rsample) 
+library(parallel)
+library(ModelMetrics)
+library(randomForest)
+library(gamlr)
+```
+
+## filter data, create a variable calculate the revenue per square foot
+
+```{r mutate variable calculate revenue, include=FALSE}
+greenbuildings <- na.omit(greenbuildings) %>% mutate(revenue = Rent * leasing_rate)
+```
+
+
+### LASSO method
+```{r split dataset, include=FALSE}
+greenhouse_split =  initial_split(greenbuildings, prop=0.8)
+greenhouse_train = training(greenhouse_split)
+greenhouse_test  = testing(greenhouse_split)
+
+```
+
+```{r Lasso, include=FALSE}
+n = nrow(greenhouse_train)
+
+scx = model.matrix(revenue ~ .- CS_PropertyID - 1, data=greenhouse_train)
+scy = greenhouse_train$revenue
+sclasso = gamlr(scx, scy, )
+
+
+
+```
+
+```{r Lasso plots, echo=FALSE}
+plot(sclasso)
+AICc(sclasso)
+plot(sclasso$lambda, AICc(sclasso))
+coef(sclasso)
+```
+```{r}
+sccvl = cv.gamlr(scx, scy, nfold=10, verb=TRUE)
+```
+```{r}
+plot(sccvl, bty="n")
+scb.min = coef(sccvl, select="min")
+lines(sclasso$lambda,AICc(sclasso)/n, col="green", lwd=2)
+legend("top", fill=c("blue","green"),
+       legend=c("CV","AICc"), bty="n")
+```
+
+
+
+### A forward stepwise procedure
+```{r stepwise procedure, include=FALSE}
+null = glm(revenue ~ 1, data=greenhouse_train, family='binomial')
+full = glm(revenue ~ ., data=greenhouse_train, family='binomial')
+```
+
