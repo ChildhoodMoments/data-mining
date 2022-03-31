@@ -40,10 +40,7 @@ cv_plot = plotcp(cart_dengue)
 
 ```
 
-```{r cart plot zoom }
-plotcp(cart_dengue, ylim=c(0.6, 1))
 
-```
 use the '1SE rule' to pick a tree, create a function and choose the  smallest tree 
 
 ```{r function that choose tree, include=FALSE}
@@ -73,6 +70,7 @@ dengue_prune = prune_1se(cart_dengue)
 modelr::rmse(dengue_prune, dengue_test)
 ```
 
+
 ## random forests
 we use the same variable as we used in CART:
 ```{r random_forests, include=FALSE}
@@ -85,7 +83,26 @@ modelr::rmse(dengue_forest, dengue_test)
 
 ```
 
-so in general, we can see that random forest is better than CART, and we make three partial dependence plots:
+## gradient-boosted trees
+
+```{r gradient-boosted, include=FALSE}
+library(randomForest)
+library(gbm)
+
+gbm_dengue = randomForest(total_cases ~ season + city + specific_humidity + tdtr_k + precipitation_amt, data=dengue_train %>% drop_na(), mtry = 5, ntree=100)
+
+gbm_case_hat = predict(gbm_dengue, dengue_test %>% drop_na())
+gbm_rmse = mean((gbm_case_hat - dengue_test$total_cases)^2) %>% sqrt
+```
+we can get its RMSE as 
+```{r GBM RMSE, include=TRUE}
+gbm_rmse
+```
+
+
+
+
+so in general, we can see that random forest is better than CART and gradient-boosted trees, and we make three partial dependence plots:
 
 ```{r randomforest partial plots, echo=FALSE}
 partialPlot(dengue_forest, dengue_test %>% drop_na(), 'specific_humidity', las=1)
