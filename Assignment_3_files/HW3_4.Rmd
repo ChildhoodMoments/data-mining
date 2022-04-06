@@ -1,0 +1,161 @@
+---
+title: "HW3_4"
+author: "Lizhao"
+date: '2022-04-03'
+output: md_document
+---
+
+## data input
+```{r data and library input, include=FALSE}
+CAhousing <- read.csv('https://raw.githubusercontent.com/jgscott/ECO395M/master/data/CAhousing.csv')
+library(tidyverse)
+library(rpart)
+library(rpart.plot)
+library(rsample) 
+library(parallel)
+library(ModelMetrics)
+library(randomForest)
+library(gamlr)
+library(gbm)
+library(knitr)
+library(ggmap)
+library(standardize)
+```
+
+First, we input the data and required package, then standardized the `totalRooms` and `totalBedrooms` by the households.
+
+```{r standardlize, include=FALSE}
+CAhousing <-  CAhousing %>% mutate(std_totalRooms = scale_by(totalRooms ~ households), std_totalBedrooms = scale_by(totalBedrooms ~ households))
+#which(is.na(CAhousing), arr.ind = TRUE)
+```
+
+Also, I will continue split dataset into two section.
+
+```{r split dataset, include=FALSE}
+CAhousing_split =  initial_split(CAhousing, prop=0.8)
+CAhousing_train = training(CAhousing_split)
+CAhousing_test  = testing(CAhousing_split)
+
+```
+
+## Tree model
+### CART model
+we first use CART model, include all variable exclude `longitude` and `latitude`, When we were building the model, we split only if that tree have at least 30 obs in a node, and the split improves the fit by a factor of 0.00001. 
+
+our tree models are (we include standardized `totalRooms` and `totalBedrooms` :
+`rpart(medianHouseValue ~ . - longitude -  latitude - totalRooms - totalBedrooms) `
+
+```{r CART model, echo = FALSE}
+cart_1 = rpart(medianHouseValue ~ . - longitude -  latitude - totalRooms - totalBedrooms , data=CAhousing_train,
+                  control = rpart.control(cp = 0.00001, minsplit=30))
+
+```
+we can get the tree plot and cross-validated error as:
+```{r CART tree and CV plot, echo=FALSE}
+plotcp(cart_1)
+plotcp(cart_1, ylim = c(0.3, 0.5))
+```
+
+Then use function to pick the smallest tree, and get the minimum rmse:
+
+```{r  CART function tp pick smallest tree, echo=FALSE}
+cp_1se = function(my_tree) {
+  out = as.data.frame(my_tree$cptable)
+  thresh = min(out$xerror + out$xstd)
+  cp_opt = max(out$CP[out$xerror <= thresh])
+  cp_opt
+}
+
+prune_1se = function(my_tree) {
+  out = as.data.frame(my_tree$cptable)
+  thresh = min(out$xerror + out$xstd)
+  cp_opt = max(out$CP[out$xerror <= thresh])
+  prune(my_tree, cp=cp_opt)
+}
+
+cart_2 = prune_1se(cart_1)
+cart_rmse = modelr::rmse(cart_1, CAhousing_test)
+cart_rmse
+```
+
+### random forests
+
+we use random forests to do the estimation, based on same dependent variables, and we get its RMSE:
+
+```{r randomforest, echo=FALSE}
+value_rf = randomForest(medianHouseValue ~ . - longitude -  latitude - totalRooms - totalBedrooms , data=CAhousing_train, importance = TRUE)
+rf_rmse = modelr::rmse(value_rf, CAhousing_test)
+rf_rmse
+```
+
+
+#### gradient-boosted trees
+we use gradient-boosted trees model to do the estimation, based on same dependent variables, and we get its RMSE.
+now we average over 100 bootstrap samples, this time use all  candidate variables (mtry=6) in each bootstrapped sample
+```{r gbm , echo=FALSE}
+gbm_value = randomForest(medianHouseValue ~ . - longitude -  latitude - totalRooms - totalBedrooms , data=CAhousing_train, mtry = 6, ntree=100)
+
+gbm_value_hat = predict(gbm_value, CAhousing_test)
+gbm_rmse = mean((gbm_value_hat - CAhousing_test$medianHouseValue)^2) %>% sqrt
+
+
+gbm_rmse
+
+
+
+```
+
+so we can see that random forest has smaller rmse, we will continue use random forest model to estimate the `medianHouseValue`
+
+### predict the result and make plots
+
+```{r random forest predict, echo=FALSE}
+CAhousing <- CAhousing %>% mutate(medianHouseValue_hat = predict(value_rf, CAhousing))
+
+CAhousing <- CAhousing %>% mutate(estimate_residuals = medianHouseValue - medianHouseValue_hat)
+```
+
+
+#### a plot of the original data
+```{r original data, include=FALSE}
+register_google(key = 'AIzaSyB8YlRsZ4zUFVSi_kEy2DM3CAUmo-Dui-s')
+CA_map <-  get_map(location = 'california', zoom = 6)
+original_data_plot <- ggmap(CA_map) + 
+  geom_point(data = CAhousing, aes(x = longitude, y = latitude, color = medianHouseValue),size = 0.2) + scale_color_continuous(type = "viridis")
+
+```
+we can get the plot result as:
+```{r show original data plot, echo=FALSE}
+original_data_plot
+
+```
+
+#### a plot of your model's predictions of medianHouseValue
+
+```{r model predictions plot, include = FALSE}
+# https://stackoverflow.com/questions/49351360/how-to-plot-specific-state-using-ggmap-and-ggplot-packages-in-r
+predictions_data_plot <- ggmap(CA_map) + 
+  geom_point(data = CAhousing, aes(x = longitude, y = latitude, color = medianHouseValue_hat),size = 0.2) + scale_color_continuous(type = "viridis")
+
+```
+
+```{r show predictions plot, echo=FALSE}
+predictions_data_plot 
+
+```
+
+
+#### a plot of your model's errors
+```{r model residuals, include = FALSE}
+residuals_plot <- ggmap(CA_map) + 
+  geom_point(data = CAhousing, aes(x = longitude, y = latitude, color = estimate_residuals),size = 0.2) + scale_color_continuous(type = "viridis")
+
+```
+
+```{r show the residuals, echo=FALSE}
+residuals_plot
+
+```
+
+So overall, we can see that our estimations are higher than the real value, it always happen in southern area of CA.
+

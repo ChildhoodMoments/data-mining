@@ -187,6 +187,8 @@ partialPlot(gbm_revenue, greenhouse_test, 'LEED', las=1)
 partialPlot(gbm_revenue, greenhouse_test, 'Energystar', las=1)
 ```
 
+
+
 from the plot of partial effects for LEED and Energystar, we can see that their partial effect is constant and stable. According to their slopes, we can estimate that when a house has a LEED certification, the average change in rental income per square foot will increase 2 dollars, holding all else fixed. On the other hand, when a house has a Energystar certification, the average change in rental income per square foot will increase 0.1 dollars, holding all else fixed. 
 
 
