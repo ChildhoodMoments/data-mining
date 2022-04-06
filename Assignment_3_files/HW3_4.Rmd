@@ -121,7 +121,7 @@ CAhousing <- CAhousing %>% mutate(estimate_residuals = medianHouseValue - median
 register_google(key = 'AIzaSyB8YlRsZ4zUFVSi_kEy2DM3CAUmo-Dui-s')
 CA_map <-  get_map(location = 'california', zoom = 6)
 original_data_plot <- ggmap(CA_map) + 
-  geom_point(data = CAhousing, aes(x = longitude, y = latitude, color = medianHouseValue),size = 0.2) + scale_color_continuous(type = "viridis")
+  geom_point(data = CAhousing, aes(x = longitude, y = latitude, color = medianHouseValue),size = 0.2) + scale_color_continuous(high ='red', low = 'yellow')
 
 ```
 we can get the plot result as:
@@ -135,7 +135,7 @@ original_data_plot
 ```{r model predictions plot, include = FALSE}
 # https://stackoverflow.com/questions/49351360/how-to-plot-specific-state-using-ggmap-and-ggplot-packages-in-r
 predictions_data_plot <- ggmap(CA_map) + 
-  geom_point(data = CAhousing, aes(x = longitude, y = latitude, color = medianHouseValue_hat),size = 0.2) + scale_color_continuous(type = "viridis")
+  geom_point(data = CAhousing, aes(x = longitude, y = latitude, color = medianHouseValue_hat),size = 0.2) + scale_color_continuous(high = 'red', low = 'yellow')
 
 ```
 
@@ -148,7 +148,7 @@ predictions_data_plot
 #### a plot of your model's errors
 ```{r model residuals, include = FALSE}
 residuals_plot <- ggmap(CA_map) + 
-  geom_point(data = CAhousing, aes(x = longitude, y = latitude, color = estimate_residuals),size = 0.2) + scale_color_continuous(type = "viridis")
+  geom_point(data = CAhousing, aes(x = longitude, y = latitude, color = estimate_residuals),size = 0.2) + scale_color_continuous(high = 'red', low = 'yellow')
 
 ```
 
