@@ -9,10 +9,10 @@ output: md_document
 ## Tree modeling: dengue cases
 In all tree model, we will use the following equation:
 `rpart(total_cases~ season + city + specific_humidity+tdtr_k+precipitation_amt)`
-
+and we will use rmse to judge better performance for each model
 ### import data
 
-```{r read csv, echo=FALSE}
+```{r read csv, include=FALSE}
 dengue <- read.csv('https://raw.githubusercontent.com/jgscott/ECO395M/master/data/dengue.csv')
 library(tidyverse)
 library(rpart)
@@ -23,7 +23,7 @@ library(ModelMetrics)
 library(randomForest)
 ```
 
-we first split the data set into train and test set.
+we first split the data set into train and test set, and do cross validation in the train data set, then make predictions in the test data set.
 
 
 ```{r split dataset, echo=FALSE}
@@ -33,7 +33,7 @@ dengue_test  = testing(dengue_split)
 
 ```
 ## CART
-
+when we use `rpart` default 10-fold cross-validation, then graph the tree plot and its X-relative error. In this case, I set if it have at least 30 obs in a node,and the split improves the fit by a factor of 0.000002
 ```{r carts, echo=FALSE}
 cart_dengue = rpart(total_cases~ season + city + specific_humidity+tdtr_k+precipitation_amt, data=dengue_train,
                   control = rpart.control(cp = 0.0000000002, minsplit=20))
@@ -41,10 +41,11 @@ cart_dengue = rpart(total_cases~ season + city + specific_humidity+tdtr_k+precip
 tree_plot = rpart.plot(cart_dengue, digits=-5, type=4, extra=1)
 cv_plot = plotcp(cart_dengue)
 
+
 ```
 
 
-use the '1SE rule' to pick a tree, create a function and choose the  smallest tree 
+use the '1SE rule' to pick a tree, create a function and choose the smallest tree, and calculate the RMSE. 
 
 ```{r function that choose tree, include=FALSE}
 cp_1se = function(my_tree) {
@@ -70,20 +71,22 @@ cp_1se(cart_dengue)
 prunes the tree at that level, and we get its RMSE as:
 ```{r smallest tree, echo=FALSE}
 dengue_prune = prune_1se(cart_dengue)
-modelr::rmse(dengue_prune, dengue_test)
+cart_rmse = modelr::rmse(dengue_prune, dengue_test)
+cart_rmse
 ```
 
 
 ## random forests
 we use the same variable as we used in CART:
 ```{r random_forests, include=FALSE}
+set.seed(100)
 dengue_forest = randomForest(total_cases ~ season + city + specific_humidity + tdtr_k + precipitation_amt, data=dengue_train %>% drop_na(), importance = TRUE)
 ```
 
 we get its RMSE:
 ```{r RMSE for random Forest, echo=FALSE}
-modelr::rmse(dengue_forest, dengue_test)
-
+rf_rmse = modelr::rmse(dengue_forest, dengue_test)
+rf_rmse
 ```
 
 ## gradient-boosted trees
@@ -91,7 +94,7 @@ modelr::rmse(dengue_forest, dengue_test)
 ```{r gradient-boosted, include=FALSE}
 library(randomForest)
 library(gbm)
-
+set.seed(100)
 gbm_dengue = randomForest(total_cases ~ season + city + specific_humidity + tdtr_k + precipitation_amt, data=dengue_train %>% drop_na(), mtry = 5, ntree=100)
 
 gbm_case_hat = predict(gbm_dengue, dengue_test %>% drop_na())
@@ -102,10 +105,17 @@ we can get its RMSE as
 gbm_rmse
 ```
 
+### model compare
+```{r table for model summary, include=FALSE}
+grade <- data.frame(Model = c("CART","random forests", "gradient-boosted trees"),
+                    RMSE = c(cart_rmse, rf_rmse, gbm_rmse)
+                    )
+                    
+summary_table = knitr::kable(grade, 'pipe')
+```
 
 
-
-so in general, we can see that random forest is better than CART and gradient-boosted trees, and we make three partial dependence plots:
+so in general, we can see that random forest is better than CART and gradient-boosted trees, and we make partial dependence plots for `specific_humidity`, `tdtr_k`, `precipitation_amt`:
 
 ```{r randomforest partial plots, echo=FALSE}
 partialPlot(dengue_forest, dengue_test %>% drop_na(), 'specific_humidity', las=1)
@@ -114,6 +124,7 @@ partialPlot(dengue_forest, dengue_test %>% drop_na(), 'tdtr_k', las=1)
 partialPlot(dengue_forest, dengue_test %>% drop_na(), 'precipitation_amt', las=1)
 
 ```
+
 
 
 
