@@ -14,7 +14,14 @@ It's really hard to tease out because obviously high-crime cities have an incent
 
 ## 2.How were the researchers from UPenn able to isolate this effect?
 
-They tried to find an exmaple where they can get a lot of police for reasons unrelated to crime.  The example they found is the terrorism alert system. When the terror alert level goes to orange, the extra police are put on the Mall and other parts of Washington to protect against terrorists. When there are extra police on the streets for reasons unrelated to street crime, the street crime does go down. According to the Table 2 shows, the estimated coefficients of High Alert is negative and significant, as long as they assume that the robbers aren't hiding in their rooms because they're afraid of the elevated terror level. so they can conclude that the there exist negative relationship between Crime and Police
+They tried to find an exmaple where they can get a lot of police for reasons unrelated to crime.  The example they found is the terrorism alert system. When the terror alert level goes to orange, the extra police are put on the Mall and other parts of Washington to protect against terrorists. When there are extra police on the streets for reasons unrelated to street crime, the street crime does go down. 
+
+According to the Table 2 shows, the first column shows that on high-alert level days, total crimes decrease by an average of seven per day. The second column included logged midday Metro ridership to measure the effect from tourism. And the result shows that on high-alert level day, the crime rate would decrease about 6 percent, but each additional log(midday ridership) will increase about 0.17% in terms of the crimes' numbers. (not very big~ ) 
+
+
+Overall, the estimated coefficients of High Alert is negative and significant, as long as they assume that the robbers aren't hiding in their rooms because they're afraid of the elevated terror level. But as the midday Metro ridership is a good IV for tourism, changes in the number of tourist cannot be part of reason that the number of crimes are affected by high alert level.  
+
+So they can conclude that the there exist negative relationship between Crime and Police
 
 
 ## 3.Why did they have to control for Metro ridership? What was that trying to capture?
@@ -29,7 +36,7 @@ The fewer tourists hypothesis seems plausible, and they tested it, and no, there
 According to the result we can get:
 __crime__ = -11.058 -2.621( __High Alert__ $$\times$$  __District 1__ ) -0.571( __High Alert__ $$\times$$ __Other Districts__ ) + 2.447 __Log(midday ridership)__
 
-so we can get the result that number of crimes is negative correlated with Alert, when the alert  level is high in first police district area, the number of crimes will decrease 2.621 times. Alough the regression results when alert level is high in other districts the crime number will decrease, but it is not statistically significant. The number of crimes has a positive relationship with __Log(midday ridership)__, that make sense since keep all else fixed, higher ridership, more potential victims for crimes. The constant is -11.058, which means the total number of crimes is decreasing in those days.
+so we can get the result that number of crimes is negative correlated with Alert, when the alert  level is high in first police district area, the number of crimes will decrease 2.621 times. Although the regression results when alert level is high in other districts the crime number will decrease( about -0.571), but it is not statistically significant. The number of crimes has a positive relationship with __Log(midday ridership)__, that make sense since keep all else fixed, higher ridership, more potential victims for crimes. The constant is -11.058, which means the total number of crimes is decreasing in those days.
 
 
 
