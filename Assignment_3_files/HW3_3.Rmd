@@ -182,7 +182,7 @@ summary_table
 so we can see that gradient-boosted trees has relative smaller rmse (which is almost as same as the random forest model), we will continue use gradient-boosted trees model to quantify the average change in rental income per square foot (whether in absolute or percentage terms) associated with green certification,
 
 
-```{r patrial effect of LEED and Energy Star}
+```{r patrial effect of leed and energy star, echo = FALSE}
 partialPlot(gbm_revenue, greenhouse_test, 'LEED', las=1)
 partialPlot(gbm_revenue, greenhouse_test, 'Energystar', las=1)
 ```
@@ -191,7 +191,7 @@ from the plot of partial effects for LEED and Energystar, we can see that their 
 
 
 
-```{r partial effect for LEED and Energystar, echo=FALSE}
+```{r useful link partial effect for LEED and Energystar, echo=FALSE}
 # https://stats.stackexchange.com/questions/117816/how-to-get-coefficients-of-gradient-boosting-models
 
 ```
