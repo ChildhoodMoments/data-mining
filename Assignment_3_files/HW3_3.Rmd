@@ -15,12 +15,18 @@ library(parallel)
 library(ModelMetrics)
 library(randomForest)
 library(gamlr)
+library(gbm)
+library(knitr)
 ```
 
 ## filter data, create a variable calculate the revenue per square foot
+When I browsed the data, I found there are some dummy variables(like renovated, class_a), since they are indexes, and there are also some variables, their values are not randomly distributed, like `empl_gr`. So I just use linear regression and tree model together, based on RMSE to choose the best model to fit the estimation. There are two indexes we focus on finding the best model: RMSE and AIC, we try to find the model with lower RMSE and AIC. 
+
+Also, I splited the initial dataset into the training dataset and testing dataset.
 
 ```{r mutate variable calculate revenue, include=FALSE}
-greenbuildings <- na.omit(greenbuildings) %>% mutate(revenue = Rent * leasing_rate)
+greenbuildings <- na.omit(greenbuildings) %>% mutate(revenue = Rent * leasing_rate / 100)
+
 ```
 
 
@@ -32,29 +38,41 @@ greenhouse_test  = testing(greenhouse_split)
 
 ```
 
-```{r Lasso, include=FALSE}
+```{r single Lasso, include=FALSE}
 n = nrow(greenhouse_train)
 
-scx = model.matrix(revenue ~ .- CS_PropertyID - 1, data=greenhouse_train)
+scx = model.matrix(revenue ~ .- CS_PropertyID - 1 - Rent- leasing_rate, data=greenhouse_train)
 scy = greenhouse_train$revenue
+
+# fit a single lasso
 sclasso = gamlr(scx, scy, )
 
-
-
 ```
 
-```{r Lasso plots, echo=FALSE}
+```{r single Lasso plots, echo=FALSE}
 plot(sclasso)
 AICc(sclasso)
-plot(sclasso$lambda, AICc(sclasso))
+plot(log(sclasso$lambda), AICc(sclasso))
+
+```
+```{r analyse the lasso result, echo=FALSE}
 coef(sclasso)
+# optimal lambda
+sclasso$lambda[which.min(AICc(sclasso))]
+
 ```
-```{r}
+In this simple lasso result, we can see that as lambda become smaller, AIC increasing. On the other hand, we can see that which variables are statistical significantly. On the other hand, we find some variables are not significant in the result( their coefficients are 0), but I don't plan to drop them, rather than construct some intersections for these variables. In the next mannual linear regression, I combine `renovated` with `age`, `total_dd_07` with `Precipitation`, 
+
+Next, we will include these variable and mannual set a linear regression, we will try to cover some intersections for those unimportant variable in the simple lasso regression.
+
+```{r cross validated lasso, echo=FALSE}
 sccvl = cv.gamlr(scx, scy, nfold=10, verb=TRUE)
-```
-```{r}
 plot(sccvl, bty="n")
 scb.min = coef(sccvl, select="min")
+log(sccvl$lambda.min)
+sum(scb.min!=0)
+
+plot(sccvl, bty="n",)
 lines(sclasso$lambda,AICc(sclasso)/n, col="green", lwd=2)
 legend("top", fill=c("blue","green"),
        legend=c("CV","AICc"), bty="n")
@@ -62,9 +80,120 @@ legend("top", fill=c("blue","green"),
 
 
 
-### A forward stepwise procedure
-```{r stepwise procedure, include=FALSE}
-null = glm(revenue ~ 1, data=greenhouse_train, family='binomial')
-full = glm(revenue ~ ., data=greenhouse_train, family='binomial')
+### A mannual procedure to construct model.
+```{r mannual regression, include=FALSE}
+mannual = lm((revenue) ~ .- CS_PropertyID - 1 - Rent- leasing_rate + renovated:renovated + total_dd_07:Precipitation, data=greenhouse_train, )
+
 ```
+The function we used is:
+`lm(revenue) ~ .- CS_PropertyID - 1 - Rent- leasing_rate + renovated:renovated + total_dd_07:Precipitation`
+we get the coefficients of the function as well as its AIC and rmse:
+```{r mannual regression result, echo=FALSE}
+(coefficients(mannual))
+AIC(mannual)
+mannual_rmse = modelr::rmse(mannual, greenhouse_test)
+mannual_rmse
+```
+
+
+### tree model, based on CART, random forests, and gradient-boosted trees
+since we use tree model, we will cover all variables and don't contain intersection. When we were building the model, we split only if that tree have at least 30 obs in a node, and the split improves the fit by a factor of 0.00001. 
+
+Our tree model's variables are:
+`rpart(revenue ~ . - Rent -  leasing_rate - CS_PropertyID) `
+
+
+#### CART
+First, we use CART:
+
+```{r CART , echo=FALSE}
+revenue_cart = rpart(revenue ~ . - Rent -  leasing_rate - CS_PropertyID , data=greenhouse_train,
+                  control = rpart.control(cp = 0.00001, minsplit=30))
+
+```
+
+we can get the tree plot and cross-validated error as:
+```{r CART tree and CV plot, echo=FALSE}
+plotcp(revenue_cart)
+plotcp(revenue_cart, ylim = c(0.3, 0.5))
+```
+Then use function to pick the smallest tree, and get the minimum rmse:
+```{r CART function tp pick smallest tree, echo=FALSE}
+cp_1se = function(my_tree) {
+  out = as.data.frame(my_tree$cptable)
+  thresh = min(out$xerror + out$xstd)
+  cp_opt = max(out$CP[out$xerror <= thresh])
+  cp_opt
+}
+
+prune_1se = function(my_tree) {
+  out = as.data.frame(my_tree$cptable)
+  thresh = min(out$xerror + out$xstd)
+  cp_opt = max(out$CP[out$xerror <= thresh])
+  prune(my_tree, cp=cp_opt)
+}
+
+revenue_cart_2 = prune_1se(revenue_cart)
+cart_rmse = modelr::rmse(revenue_cart_2, greenhouse_test)
+cart_rmse
+```
+
+#### random forests
+we use random forests to do the estimation, based on same tree model's dependent variables, and we get its RMSE:
+
+
+
+```{r randomforest, echo=FALSE}
+revenue_forest = randomForest(revenue ~ . - Rent -  leasing_rate - CS_PropertyID, data=greenhouse_train, importance = TRUE)
+rf_rmse = modelr::rmse(revenue_forest, greenhouse_test)
+rf_rmse
+```
+
+
+
+#### gradient-boosted trees
+we use gradient-boosted trees model to do the estimation, based on same dependent variables, and we get its RMSE:
+now we average over 100 bootstrap samples, this time use __all  candidate variables (mtry=20)__ in each bootstrapped sample
+```{r gbm , echo=FALSE}
+gbm_revenue = randomForest(revenue ~ . - Rent -  leasing_rate - CS_PropertyID, data=greenhouse_train, mtry = 20, ntree=100)
+
+gbm_revenue_hat = predict(gbm_revenue, greenhouse_test)
+gbm_rmse = mean((gbm_revenue_hat - greenhouse_test$revenue)^2) %>% sqrt
+
+```
+```{r gbm rmse shows, echo=FALSE}
+gbm_rmse
+```
+
+#### model compare
+```{r different models rmse summary, include = FALSE }
+grade <- data.frame(Model = c("mannual","CART","random forests", "gradient-boosted trees"),
+                    RMSE = c(mannual_rmse, cart_rmse, rf_rmse, gbm_rmse),
+                    AIC = c(NA,NA,NA, NA))
+                    
+summary_table = knitr::kable(grade, 'pipe')
+
+```
+
+```{r show the result, echo=FALSE}
+summary_table 
+```
+
+so we can see that gradient-boosted trees has relative smaller rmse (which is almost as same as the random forest model), we will continue use gradient-boosted trees model to quantify the average change in rental income per square foot (whether in absolute or percentage terms) associated with green certification,
+
+
+```{r patrial effect of LEED and Energy Star}
+partialPlot(gbm_revenue, greenhouse_test, 'LEED', las=1)
+partialPlot(gbm_revenue, greenhouse_test, 'Energystar', las=1)
+```
+
+from the plot of partial effects for LEED and Energystar, we can see that their partial effect is constant and stable. According to their slopes, we can estimate that when a house has a LEED certification, the average change in rental income per square foot will increase 2 dollars, holding all else fixed. On the other hand, when a house has a Energystar certification, the average change in rental income per square foot will increase 0.1 dollars, holding all else fixed. 
+
+
+
+```{r partial effect for LEED and Energystar, echo=FALSE}
+# https://stats.stackexchange.com/questions/117816/how-to-get-coefficients-of-gradient-boosting-models
+
+```
+
 
