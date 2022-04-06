@@ -182,10 +182,12 @@ summary_table
 so we can see that gradient-boosted trees has relative smaller rmse (which is almost as same as the random forest model), we will continue use gradient-boosted trees model to quantify the average change in rental income per square foot (whether in absolute or percentage terms) associated with green certification,
 
 
-```{r patrial effect of leed and energy star, echo = TRUE}
-partialPlot(gbm_revenue, greenhouse_test, 'LEED', las=1)
-partialPlot(gbm_revenue, greenhouse_test, 'Energystar', las=1)
+```{r patrial effect of leed and energy star, echo = FALSE}
+plot_1 = partialPlot(gbm_revenue, greenhouse_test, 'LEED', las=1)
+plot_2 = partialPlot(gbm_revenue, greenhouse_test, 'Energystar', las=1)
 ```
+
+
 
 from the plot of partial effects for LEED and Energystar, we can see that their partial effect is constant and stable. According to their slopes, we can estimate that when a house has a LEED certification, the average change in rental income per square foot will increase 2 dollars, holding all else fixed. On the other hand, when a house has a Energystar certification, the average change in rental income per square foot will increase 0.1 dollars, holding all else fixed. 
 
