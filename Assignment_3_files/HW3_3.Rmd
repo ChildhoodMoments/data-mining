@@ -183,8 +183,8 @@ so we can see that gradient-boosted trees has relative smaller rmse (which is al
 
 
 ```{r patrial effect of leed and energy star, echo = FALSE}
-plot_1 = partialPlot(gbm_revenue, greenhouse_test, 'LEED', las=1)
-plot_2 = partialPlot(gbm_revenue, greenhouse_test, 'Energystar', las=1)
+partialPlot(gbm_revenue, greenhouse_test, 'LEED', las=1)
+partialPlot(gbm_revenue, greenhouse_test, 'Energystar', las=1)
 ```
 
 
