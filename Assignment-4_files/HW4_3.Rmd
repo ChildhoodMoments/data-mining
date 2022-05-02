@@ -1,0 +1,142 @@
+---
+title: "HW4_3"
+author: "Lizhao"
+date: '2022-05-01'
+output: md_document
+---
+
+
+
+####  Association rules for grocery purchases
+
+Since `groceries.txt` is a text document, we first set up some packages and use the __"reader" functions__ professor created in the `tm_examples.R` file.
+
+
+
+
+```{r setup, include=FALSE}
+library(tm) 
+library(tidyverse)
+library(slam)
+library(proxy)
+
+library(tidyverse)
+library(arules)  # has a big ecosystem of packages built around it
+library(arulesViz)
+library(igraph)
+
+```
+
+##### create functions read document.
+we use the `readerPlain` function as professor used in `tm_examples.R`. I also shows the file's meta data.
+
+```{r set up read file function, echo=FALSE}
+readerPlain = function(fname){
+				readPlain(elem=list(content=readLines(fname)), 
+							id=fname, language='en')}
+
+groceries <- readerPlain('https://raw.githubusercontent.com/jgscott/ECO395M/master/data/groceries.txt')
+
+
+meta(groceries)
+summary(groceries)
+
+```
+
+
+##### create a list of baskets
+In this document, we can only create a list of baskets based on each row, since there is no heading or other variables can be used to split.
+
+we first create a text mining 'corpus' with the initial document. Since there is no number in the file, and each letter is lowercase, we only need to use `,` to split each item. So we pass the process of pre-processing/tokenization steps. We have already known there are 9835 rows in this file, so we will split them into 9835 rows and split each row's elements by `,`
+
+We can get first row in the baskt like:
+```{r create a list of baskets, echo=FALSE}
+documents_raw = Corpus(VectorSource(groceries))
+basket = list()
+for (i in 1: length(documents_raw)){
+  basket[[i]] = strsplit(as.character(documents_raw[[i]]), ",")[[1]]
+  # what's difference between 
+  # strsplit(as.character(documents_raw[[i]]), ",")
+  # &
+  # strsplit(as.character(documents_raw[[i]]), ",")[[1]]  
+  # https://statisticsglobe.com/r-error-in-strsplit-non-character-argument
+} 
+
+basket[[1]]
+```
+
+
+Then we use `lappy` function  to remove duplicates ("de-dupe"). Then cast this resulting list of playlists as a special arules "transactions" class. Then we can see the summary of basket based on "transactions" rules.
+
+```{r remove duplicates use arules, echo=FALSE}
+basket = lapply(basket, unique)
+basket_trans = as(basket, "transactions")
+summary(basket_trans)
+```
+
+##### create association rules
+Then Now run the 'apriori' algorithm, look at rules with support > .01 & confidence >.1 & length (# artists) <= 2, 
+
+```{r create assoicate rules, include=FALSE}
+basketrules = apriori(basket_trans, 
+	parameter=list(support=.01, confidence=.1, maxlen=2))
+
+```
+
+we firstly look at the output... so many rules! Since there are 339 rules, I want to reset the rules requirement.
+
+```{r show initial setting rules, echo=FALSE}
+basketrules
+```
+
+Then I look at rules with support > .03 & confidence >.1 & length (# artists) <= 2, 
+
+```{r reset accociated rules, include=FALSE}
+basketrules = apriori(basket_trans, 
+	parameter=list(support=.02, confidence=.1, maxlen=2))
+
+```
+
+```{r show the number of reset assoicate rules, echo=FALSE}
+basketrules
+```
+Now we have 122 rules, with requirement : __support > .02 & confidence >.1 & length (# artists) <= 2__.  We can continue to analyze them and to set the threshold as we want.
+
+
+#####  Futher  Analysis
+Under the above threshold, about 100 rules we got. We first plot all the rules in (support, confidence) space notice that high lift rules tend to have low support.
+
+```{r plot rules, echo=FALSE, warning=FALSE}
+plot(basketrules)
+plot(basketrules, measure = c("support", "lift"), shading = "confidence")
+
+```
+
+We can estimate that high lift tend to have low support. Also, high confidence tend to have low support. This is also in line with the prediction of chance.
+
+Now, we can create a new subset and show the result, although we have 122 rules now, it is too many to graph it, so we set a new subset, with threshold __support > .04 & confidence >.1 __, and now we can see that only 26 rules still exist.
+
+```{r create a new subset with new assoicate rules, echo=FALSE}
+sub1 = subset(basketrules, subset=confidence > 0.1 & support > 0.04)
+sub1
+saveAsGraph(sub1, file = "D:/01 UT Austin/2022 spring/Logan/basketrules.graphml")
+
+```
+
+
+And we can get the graph based on the new subset
+
+```{r plot new subset , echo=FALSE}
+plot(sub1, method = 'graph', )
+```
+
+I think the association rules make sense, it shows several major commodity categories. For example, it shows root vegetables and other vegetables, and there are many arrows point to them. Also, we can plot the initial association rules, but due to some reasons, it can only plot part of it.
+
+```{r show the basketrules plot, echo=FALSE}
+plot(basketrules, method = 'graph', size = 0.5)
+```
+
+Now we can see clearly that association rules make senses.
+
+
+
