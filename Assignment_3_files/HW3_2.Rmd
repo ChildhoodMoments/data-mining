@@ -94,6 +94,7 @@ rf_rmse
 ```{r gradient-boosted, include=FALSE}
 library(randomForest)
 library(gbm)
+# see load_forests.R
 set.seed(100)
 gbm_dengue = randomForest(total_cases ~ season + city + specific_humidity + tdtr_k + precipitation_amt, data=dengue_train %>% drop_na(), mtry = 5, ntree=100)
 
