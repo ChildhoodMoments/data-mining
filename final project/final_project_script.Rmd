@@ -1,0 +1,103 @@
+---
+title: "final project subscript"
+author: "Lizhao"
+date: '2022-05-06'
+output: html_document
+---
+### create the independent variable matrix, include all abilities indexes
+
+
+```{r pressure, echo=FALSE}
+ability_indexes <- Analyzed_data %>% 
+  na_if("")%>% select("Crossing","Finishing","HeadingAccuracy",
+                             "ShortPassing","Volleys","Dribbling","Curve",
+                             "FKAccuracy","LongPassing","BallControl",
+                             "Acceleration","SprintSpeed","Agility",
+                             "Reactions","Balance","ShotPower","Jumping",
+                             "Stamina","Strength","LongShots","Aggression",
+                             "Interceptions","Positioning","Vision",
+                             "Penalties","Composure","Marking",
+                             "StandingTackle","SlidingTackle","GKDiving",
+                             "GKHandling","GKKicking","GKPositioning",
+                             "GKReflexes")
+
+
+ability_indexes <- na.omit(ability_indexes)
+
+ability_indexes_scale = scale(ability_indexes, center=TRUE, scale=TRUE)
+
+mu = attr(ability_indexes,"scaled:center")
+sigma = attr(ability_indexes,"scaled:scale")
+
+
+```
+
+### can cluster model help us distinguish sth? Wage? Age? position?
+
+ATTENTION: cluster model use ability_index, don't include age, wage,or other thing,
+
+```{r cluster based on their abilities, echo=FALSE}
+set.seed(10000)
+clust1 = kmeans(ability_indexes_scale, 5, nstart=25)
+clust1$size
+clust1_sum <- clust1$center%>% as.data.frame()%>%rownames_to_column('cluster_No')
+clust1_sum
+v = clust1$cluster
+```
+
+```{r show each cluster wage and age, echo=FALSE}
+Analyzed_data <- Analyzed_data %>% mutate(clust_No = v)
+ggplot(data = Analyzed_data)+ geom_point(aes(x = wage_amount, y = Age,  ), alpha = 0.2, ) + coord_flip()+
+  facet_wrap(~clust_No)
+
+
+ggplot(data = Analyzed_data)+ geom_histogram(aes(x = Potential,  ), alpha = 0.2, ) + 
+  facet_wrap(~clust_No)
+
+```
+
+
+#### can I describe my finding according to these plots?
+
+```{r plot any other variables based on cluster number, echo=FALSE} 
+ggplot(data = Analyzed_data)+ geom_point(aes(x = wage_amount, y = Age, color = factor(clust_No) ), alpha = 1, )
+
+```
+
+Also, we can test weight, height
+```{r weight and height, echo=FALSE}
+#https://stackoverflow.com/questions/47667994/ggplot-x-axis-labels-with-all-x-axis-values
+
+ggplot(data = Analyzed_data)+ geom_point(aes(x = weight_amount, y = height_cm, color = factor(clust1$cluster)), alpha = 0.2, ) +theme(axis.text.x = element_text(angle=45, vjust=.5, size = 0.6, hjust=1))+scale_x_discrete(breaks = seq(110,250,10))
+
+
+```
+
+
+
+cluster them into 10 clusters, since there are 27 positions
+
+```{r try to disinguish position, include=FALSE}
+set.seed(10000)
+clust2 = kmeans(ability_indexes_scale, 10, nstart=100)
+clust2$size
+clust2_sum <- clust2$center%>% as.data.frame()%>%rownames_to_column('cluster_No')
+clust2_sum
+v_2 = clust2$cluster
+
+```
+
+
+```{r show the plots for each cluster about their position, echo=FALSE}
+Analyzed_data <- Analyzed_data %>% mutate(clust_No_2 = v_2)
+ggplot(data = Analyzed_data)+ geom_bar(aes(x = Position, ), alpha = 0.2, ) + theme(axis.text.x = element_text(angle=45, vjust=.5, hjust=1, ))+
+  facet_wrap(~clust_No_2)
+
+```
+
+## whether we can predict a player preferred Foot? based on different methods
+
+try to use lasso to calculate whether a palyers preferred foot binomial variable ----- lasso (glmnet does L1-L2, gamlr does L0-L1)
+
+RHS var is perferred foot is left or right?   (binomial variable 0 and 1)
+LHS vars are ability indexes
